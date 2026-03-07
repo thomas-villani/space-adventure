@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Space Adventure!</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD overlay -->
+  <div id="hud" class="overlay hidden">
+    <div id="hud-score">Score: 0</div>
+    <div id="hud-visited">Visited: 0 / 28</div><!-- updated dynamically -->
+    <div id="hud-destination"></div>
+    <div id="hud-speed">Speed: Normal [Q]</div>
+  </div>
+
+  <!-- Menu screen -->
+  <div id="menu-screen" class="overlay screen">
+    <h1 class="title">Space Adventure!</h1>
+    <p class="subtitle">Explore the Solar System!</p>
+    <p class="prompt blink">Press any key to start</p>
+    <p class="prompt menu-hint">Press <kbd>L</kbd> to Load Game</p>
+  </div>
+
+  <!-- Proximity prompt -->
+  <div id="proximity-prompt" class="overlay hidden">
+    <p class="prompt">Press <kbd>Enter</kbd> to visit <span id="proximity-name"></span>!</p>
+  </div>
+
+  <!-- Fact panel -->
+  <div id="fact-panel" class="overlay screen hidden">
+    <h2 id="fact-title"></h2>
+    <div id="fact-body"></div>
+    <p class="prompt">Press <kbd>Enter</kbd> to continue</p>
+  </div>
+
+  <!-- Quiz panel -->
+  <div id="quiz-panel" class="overlay screen hidden">
+    <h2>Space Quiz!</h2>
+    <p id="quiz-question"></p>
+    <div id="quiz-options"></div>
+    <p id="quiz-result" class="hidden"></p>
+  </div>
+
+  <!-- Victory screen -->
+  <div id="victory-screen" class="overlay screen hidden">
+    <h1 class="title">You Did It!</h1>
+    <p class="subtitle">You explored the whole Solar System!</p>
+    <p id="victory-score"></p>
+    <div id="badge-grid" class="hidden"></div>
+    <div id="high-score-entry" class="hidden">
+      <p class="hs-label">New High Score! Enter your name:</p>
+      <input type="text" id="hs-name-input" maxlength="15" placeholder="Your name" autocomplete="off" />
+      <p class="prompt">Press <kbd>Enter</kbd> to confirm</p>
+    </div>
+    <div id="high-score-table" class="hidden">
+      <h3>High Scores</h3>
+      <ol id="hs-list"></ol>
+    </div>
+    <p id="victory-prompt" class="prompt blink hidden">Press any key to play again</p>
+  </div>
+
+  <!-- Asteroid HUD -->
+  <div id="asteroid-hud" class="overlay hidden">
+    <div id="asteroid-progress-bar">
+      <div id="asteroid-progress-fill"></div>
+    </div>
+    <div id="asteroid-score">Score: 0</div>
+  </div>
+
+  <!-- Pause screen -->
+  <div id="pause-screen" class="overlay screen hidden">
+    <h1 class="title">Paused</h1>
+    <p class="subtitle">Take a break, space explorer!</p>
+    <p class="prompt blink">Press <kbd>Esc</kbd> to resume</p>
+    <p class="prompt pause-hint">Press <kbd>J</kbd> for Space Journal</p>
+    <p class="prompt pause-hint" id="pause-save-hint">Press <kbd>S</kbd> to Save Game</p>
+    <p class="prompt pause-hint">Press <kbd>L</kbd> to Load Game</p>
+  </div>
+
+  <!-- Score popup -->
+  <div id="score-popup" class="overlay hidden"></div>
+
+  <!-- Screen flash -->
+  <div id="screen-flash" class="overlay hidden"></div>
+
+  <!-- Journal screen -->
+  <div id="journal-screen" class="overlay screen hidden">
+    <h1 class="title">Space Journal</h1>
+    <div id="journal-grid"></div>
+    <p class="prompt">Press <kbd>J</kbd> or <kbd>Esc</kbd> to close</p>
+  </div>
+
+  <!-- Badge notification toast -->
+  <div id="badge-notification" class="overlay hidden">
+    <div class="badge-toast-icon"></div>
+    <div class="badge-toast-text">
+      <div class="badge-toast-title"></div>
+      <div class="badge-toast-desc"></div>
+    </div>
+  </div>
+
+  <!-- Orbit mode UI -->
+  <div id="orbit-name" class="overlay hidden"></div>
+  <div id="orbit-skip-hint" class="overlay hidden">
+    <p class="prompt blink">Press <kbd>Enter</kbd> to continue</p>
+  </div>
+
+  <!-- Save screen -->
+  <div id="save-screen" class="overlay screen hidden">
+    <h1 class="title">Save Game</h1>
+    <div id="save-slots"></div>
+    <p class="prompt">Use <kbd>&#8593;</kbd><kbd>&#8595;</kbd> to select, <kbd>Enter</kbd> to save, <kbd>Esc</kbd> to cancel</p>
+  </div>
+
+  <!-- Load screen -->
+  <div id="load-screen" class="overlay screen hidden">
+    <h1 class="title">Load Game</h1>
+    <div id="load-slots"></div>
+    <p class="prompt">Use <kbd>&#8593;</kbd><kbd>&#8595;</kbd> to select, <kbd>Enter</kbd> to load, <kbd>Esc</kbd> to cancel</p>
+  </div>
+
+  <!-- Confirm dialog -->
+  <div id="confirm-screen" class="overlay screen hidden">
+    <p id="confirm-message" class="confirm-text"></p>
+    <div class="confirm-buttons">
+      <button class="confirm-btn">Yes</button>
+      <button class="confirm-btn selected">No</button>
+    </div>
+    <p class="prompt">Use <kbd>&#8592;</kbd><kbd>&#8594;</kbd> to select, <kbd>Enter</kbd> to confirm, <kbd>Esc</kbd> to cancel</p>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
