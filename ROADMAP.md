@@ -204,7 +204,7 @@ These are good ideas but lower priority. Capture here for later.
 |---|---------|--------|
 | 1 | TTS (Text-to-Speech) | DONE |
 | 2 | "Did You Know?" Random Facts | DONE |
-| 3 | Wormhole / Secret Passage | TODO |
+| 3 | Wormhole / Secret Passage | DONE |
 | 4 | Planet Mini-Games | TODO |
 | 5 | Mission System | TODO |
 | 6 | Photo Mode & Postcards | TODO |

@@ -280,6 +280,11 @@ kbd {
   display: block !important;
 }
 
+#screen-flash.warp {
+  background: rgba(100, 50, 200, 0.4);
+  display: block !important;
+}
+
 /* Victory */
 #victory-score {
   font-size: 2rem;

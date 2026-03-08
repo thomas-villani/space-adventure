@@ -7,6 +7,7 @@ export const ACHIEVEMENTS = [
   { id: 'all_planets', name: 'Planet Master', desc: 'Visit all planets and dwarf planets', icon: 0xFFDD00, category: 'exploration' },
   { id: 'completionist', name: 'Completionist', desc: 'Visit every destination', icon: 0xFF00FF, category: 'exploration' },
   { id: 'voyager_found', name: 'Space Pioneer', desc: 'Find the Voyager spacecraft', icon: 0xDDCC88, category: 'exploration' },
+  { id: 'wormhole_explorer', name: 'Wormhole Explorer', desc: 'Use the wormhole for the first time', icon: 0x9966FF, category: 'exploration' },
 
   // Quiz
   { id: 'first_quiz', name: 'Quiz Star', desc: 'Answer your first quiz correctly', icon: 0xFFD700, category: 'quiz' },

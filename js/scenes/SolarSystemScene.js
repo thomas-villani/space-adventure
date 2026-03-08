@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { Ship } from '../entities/Ship.js';
 import { Planet } from '../entities/Planet.js';
 import { Collectible } from '../entities/Collectible.js';
+import { Wormhole } from '../entities/Wormhole.js';
 import { LandingScene } from './LandingScene.js';
 import { DESTINATIONS, DESTINATION_MAP, PLANETS, MOONS } from '../data/solarSystem.js';
 import { GameState } from '../game.js';
@@ -149,6 +150,21 @@ export class SolarSystemScene {
     this.boundary = new THREE.Mesh(boundaryGeo, boundaryMat);
     this.scene.add(this.boundary);
 
+    // Wormholes — bidirectional portal pair
+    const outerAngle = Math.PI * 0.7;
+    const innerAngle = Math.PI * 1.8;
+    this.wormholeOuter = new Wormhole(
+      new THREE.Vector3(Math.cos(outerAngle) * 475, 0, Math.sin(outerAngle) * 475),
+      'outer',
+    );
+    this.wormholeInner = new Wormhole(
+      new THREE.Vector3(Math.cos(innerAngle) * 155, 0, Math.sin(innerAngle) * 155),
+      'inner',
+    );
+    this.scene.add(this.wormholeOuter.group);
+    this.scene.add(this.wormholeInner.group);
+    this._warpCooldown = 0;
+
     // Ship
     this.ship = new Ship(this.game.particles);
     this.ship.group.position.set(95, 5, 0); // Start near Earth
@@ -289,6 +305,22 @@ export class SolarSystemScene {
       }
     }
 
+    // Update wormholes and check for teleport
+    this.wormholeOuter.update(dt);
+    this.wormholeInner.update(dt);
+    if (this._warpCooldown > 0) this._warpCooldown -= dt;
+
+    if (this._warpCooldown <= 0) {
+      const distOuter = this.ship.position.distanceTo(this.wormholeOuter.position);
+      const distInner = this.ship.position.distanceTo(this.wormholeInner.position);
+
+      if (distOuter < this.wormholeOuter.collisionRadius) {
+        this._teleportTo(this.wormholeInner);
+      } else if (distInner < this.wormholeInner.collisionRadius) {
+        this._teleportTo(this.wormholeOuter);
+      }
+    }
+
     // Boundary — hard wall at edge of solar system
     const maxDist = 520;
     const warnDist = maxDist - 30;
@@ -364,5 +396,31 @@ export class SolarSystemScene {
     } else {
       this.game.ui.setDestination('');
     }
+  }
+
+  _teleportTo(exitWormhole) {
+    // Move ship to exit wormhole position, offset slightly so we don't re-trigger
+    const offset = exitWormhole.position.clone().normalize().multiplyScalar(12);
+    this.ship.group.position.copy(exitWormhole.position).add(offset);
+
+    // Cooldown prevents immediate re-teleport
+    this._warpCooldown = 2;
+
+    // Visual + audio feedback
+    this.game.ui.flashScreen('warp');
+    this.game.particles.sparkle(this.ship.position.clone(), 0x9966FF, 30);
+    this.game.particles.sparkle(exitWormhole.position.clone(), 0x9966FF, 20);
+
+    // Warp sound — descending whoosh
+    this.game.playTone(1200, 0.3, 'sine', 0.12);
+    setTimeout(() => this.game.playTone(400, 0.4, 'sine', 0.1), 100);
+    setTimeout(() => this.game.playTone(200, 0.3, 'sine', 0.08), 250);
+
+    this.game.tts.speak('Wormhole!');
+    this.game.ui.showScorePopup(0, 'Wormhole Jump!');
+
+    // Track achievement
+    this.game.wormholeUsed = true;
+    this.game.checkAchievements();
   }
 }

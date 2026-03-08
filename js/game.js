@@ -48,6 +48,7 @@ export class Game {
     this.crystalsCollected = 0;
     this.asteroidsDestroyedThisRun = 0;
     this.wasHitThisRun = false;
+    this.wormholeUsed = false;
 
     // Journal/save overlay state
     this.journalOpen = false;
@@ -175,6 +176,7 @@ export class Game {
     check('all_planets', ['mercury', 'venus', 'earth', 'mars', 'ceres', 'jupiter', 'saturn', 'uranus', 'neptune', 'pluto', 'makemake', 'haumea', 'eris'].every(p => v.has(p)));
     check('completionist', REQUIRED_DESTINATIONS.every(d => v.has(d.id)));
     check('voyager_found', v.has('voyager'));
+    check('wormhole_explorer', this.wormholeUsed);
 
     // Quiz
     check('first_quiz', this.quizStreak >= 1);

@@ -143,6 +143,7 @@ export class VictoryScene {
       this.game.crystalsCollected = 0;
       this.game.asteroidsDestroyedThisRun = 0;
       this.game.wasHitThisRun = false;
+      this.game.wormholeUsed = false;
       this.game._hasSaved = false;
       this.game.storage.clearJournal();
       this.game.setState(GameState.SOLAR_SYSTEM);
