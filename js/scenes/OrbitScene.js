@@ -85,8 +85,9 @@ export class OrbitScene {
         this.scene.add(this._parentPlanet.group);
       }
 
-      // Show orbit name UI
+      // Show orbit name UI and read aloud
       this.game.ui.showOrbitName(this.planetData.name);
+      this.game.tts.speak(`You're visiting ${this.planetData.name}!`);
     } else {
       this._safeDistance = 15;
     }

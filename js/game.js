@@ -8,8 +8,10 @@ import { AsteroidScene } from './scenes/AsteroidScene.js';
 import { OrbitScene } from './scenes/OrbitScene.js';
 import { LandingScene } from './scenes/LandingScene.js';
 import { VictoryScene } from './scenes/VictoryScene.js';
+import { TTSManager } from './systems/TTSManager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_MAP } from './data/achievements.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS } from './data/solarSystem.js';
+import { FUN_FACTS } from './data/funFacts.js';
 
 export const GameState = {
   MENU: 'MENU',
@@ -33,6 +35,7 @@ export class Game {
     this.ui = new UIManager();
     this.particles = new ParticleEngine();
     this.storage = new StorageManager();
+    this.tts = new TTSManager();
 
     this.score = 0;
     this.visited = new Set();
@@ -54,6 +57,12 @@ export class Game {
 
     // Track whether current progress has been saved
     this._hasSaved = false;
+
+    // Fun fact system
+    this._funFactTimer = 0;
+    this._funFactInterval = 40; // seconds between facts
+    this._shownFacts = new Set();
+    this._funFactActive = false;
 
     // Audio context (lazy init on first user interaction)
     this.audioCtx = null;
@@ -113,6 +122,8 @@ export class Game {
     const oldScene = this.scenes[this.state];
     if (oldScene && oldScene.exit) oldScene.exit();
 
+    this.tts.stop();
+    this.dismissFunFact();
     this.state = newState;
     // Update UI before enter() so scene can show panels on top
     this.ui.onStateChange(newState, this);
@@ -182,6 +193,44 @@ export class Game {
     // Asteroid (checked after minigame completes)
     check('sharpshooter', this.asteroidsDestroyedThisRun >= 10);
     check('untouchable', this._justFinishedAsteroid && !this.wasHitThisRun);
+  }
+
+  // ── Fun Facts ──
+  _updateFunFacts(dt) {
+    // Only show during solar system flight
+    if (this.state !== GameState.SOLAR_SYSTEM || this.paused) return;
+    if (this._funFactActive) return;
+
+    this._funFactTimer += dt;
+    if (this._funFactTimer < this._funFactInterval) return;
+
+    this._funFactTimer = 0;
+    // Randomize next interval (30-60s)
+    this._funFactInterval = 30 + Math.random() * 30;
+
+    // Pick a fact we haven't shown this session
+    const available = FUN_FACTS.filter((_, i) => !this._shownFacts.has(i));
+    if (available.length === 0) {
+      this._shownFacts.clear(); // Reset pool if exhausted
+      return;
+    }
+    const idx = FUN_FACTS.indexOf(available[Math.floor(Math.random() * available.length)]);
+    this._shownFacts.add(idx);
+
+    this._funFactActive = true;
+    this.ui.showFunFact(FUN_FACTS[idx]);
+    this.tts.speak(FUN_FACTS[idx]);
+    this.playTone(900, 0.08, 'sine', 0.05);
+
+    // Auto-clear active flag after toast dismisses
+    setTimeout(() => { this._funFactActive = false; }, 9000);
+  }
+
+  dismissFunFact() {
+    if (this._funFactActive) {
+      this._funFactActive = false;
+      this.ui.hideFunFact();
+    }
   }
 
   togglePause() {
@@ -438,6 +487,13 @@ export class Game {
       this.togglePause();
     }
 
+    // TTS toggle (T key while paused)
+    if (this.input.wasPressed('KeyT') && this.paused && !this.journalOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
+      const enabled = this.tts.toggle();
+      this.ui.updateTTSStatus(enabled);
+      this.playTone(enabled ? 800 : 400, 0.1);
+    }
+
     if (this.paused) {
       // Still render the current scene, just don't update
       const activeScene = this.scenes[this.state];
@@ -468,6 +524,13 @@ export class Game {
         if (activeScene.scene && activeScene.camera) {
           this.renderer.render(activeScene.scene, activeScene.camera);
         }
+      }
+
+      // Fun fact system
+      this._updateFunFacts(dt);
+      // Dismiss fun fact on any key press
+      if (this._funFactActive && this.input.anyKeyPressed()) {
+        this.dismissFunFact();
       }
     }
 

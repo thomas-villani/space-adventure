@@ -16,6 +16,7 @@ export class SolarSystemScene {
     this.collectibles = [];
     this.nearestPlanet = null;
     this.proximityThreshold = 12;
+    this._lastSpokenPlanet = null;
   }
 
   init() {
@@ -328,12 +329,18 @@ export class SolarSystemScene {
     if (this.nearestPlanet && this.nearestPlanet !== nearest) {
       this.nearestPlanet.setHighlighted(false);
       this.game.ui.hideProximity();
+      this._lastSpokenPlanet = null;
     }
 
     this.nearestPlanet = nearest;
     if (nearest) {
       nearest.setHighlighted(true);
       this.game.ui.showProximity(nearest.data.name);
+      // Read planet name aloud when first approaching
+      if (this._lastSpokenPlanet !== nearest.data.id) {
+        this._lastSpokenPlanet = nearest.data.id;
+        this.game.tts.speak(`You're near ${nearest.data.name}!`);
+      }
 
       // Visit on Enter
       if (input.enter) {

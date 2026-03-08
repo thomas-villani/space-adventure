@@ -80,8 +80,11 @@ export class LandingScene {
         this.scene.add(this._parentPlanet.group);
       }
 
-      // Show facts
+      // Show facts and read them aloud
       this.game.ui.showFacts(this.planetData);
+      this.game.tts.speak(
+        this.planetData.name + '. ' + this.planetData.facts.join('. ')
+      );
       this.game.playTone(660, 0.3, 'sine', 0.06);
     }
   }
@@ -117,17 +120,20 @@ export class LandingScene {
           if (this.planetData.quizzes && this.planetData.quizzes.length > 0) {
             this.phase = Phase.QUIZ;
             const quiz = this.planetData.quizzes[Math.floor(Math.random() * this.planetData.quizzes.length)];
+            this.game.tts.speak(quiz.question);
             this.game.ui.showQuiz(quiz, (correct) => {
               if (correct) {
                 this.game.quizStreak++;
                 this.game.addScore(10);
                 this.game.ui.showScorePopup(10, 'Correct! Amazing!');
                 this.game.ui.flashScreen('celebrate');
+                this.game.tts.speak('Correct! Amazing!');
                 this.game.playMelody([[784, 0.1], [988, 0.1], [1175, 0.2]]);
               } else {
                 this.game.quizStreak = 0;
                 this.game.addScore(3);
                 this.game.ui.showScorePopup(3, 'Good try! Keep exploring!');
+                this.game.tts.speak('Good try! Keep exploring!');
                 this.game.playTone(440, 0.2);
               }
               this.game.checkAchievements();

@@ -87,6 +87,7 @@
     <p class="prompt pause-hint">Press <kbd>J</kbd> for Space Journal</p>
     <p class="prompt pause-hint" id="pause-save-hint">Press <kbd>S</kbd> to Save Game</p>
     <p class="prompt pause-hint">Press <kbd>L</kbd> to Load Game</p>
+    <p class="prompt pause-hint" id="pause-tts-hint">Press <kbd>T</kbd> to toggle Read Aloud: <span id="tts-status">ON</span></p>
   </div>
 
   <!-- Score popup -->
@@ -100,6 +101,12 @@
     <h1 class="title">Space Journal</h1>
     <div id="journal-grid"></div>
     <p class="prompt">Press <kbd>J</kbd> or <kbd>Esc</kbd> to close</p>
+  </div>
+
+  <!-- Fun fact toast -->
+  <div id="fun-fact-toast" class="overlay hidden">
+    <div class="fun-fact-icon">?</div>
+    <div class="fun-fact-text"></div>
   </div>
 
   <!-- Badge notification toast -->

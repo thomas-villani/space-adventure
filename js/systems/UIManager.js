@@ -62,6 +62,14 @@ export class UIManager {
     this._confirmYes = null;
     this._confirmNo = null;
     this._confirmSelected = 1; // 0=Yes, 1=No (default to No for safety)
+
+    // Fun fact toast
+    this.funFactToast = document.getElementById('fun-fact-toast');
+    this.funFactText = this.funFactToast?.querySelector('.fun-fact-text');
+    this._funFactTimeout = null;
+
+    // TTS status display
+    this.ttsStatus = document.getElementById('tts-status');
   }
 
   showMenu() {
@@ -84,6 +92,7 @@ export class UIManager {
     this.orbitName.classList.add('hidden');
     this.orbitSkipHint.classList.add('hidden');
     this.confirmScreen.classList.add('hidden');
+    this.hideFunFact();
 
     switch (state) {
       case GameState.SOLAR_SYSTEM:
@@ -470,6 +479,31 @@ export class UIManager {
       } else if (this._confirmNo) {
         this._confirmNo();
       }
+    }
+  }
+
+  // ── Fun Fact Toast ──
+  showFunFact(text) {
+    if (this._funFactTimeout) clearTimeout(this._funFactTimeout);
+    this.funFactText.textContent = text;
+    this.funFactToast.className = 'overlay show';
+    this._funFactTimeout = setTimeout(() => {
+      this.hideFunFact();
+    }, 8000);
+  }
+
+  hideFunFact() {
+    if (this._funFactTimeout) {
+      clearTimeout(this._funFactTimeout);
+      this._funFactTimeout = null;
+    }
+    this.funFactToast.className = 'overlay hidden';
+  }
+
+  // ── TTS Status ──
+  updateTTSStatus(enabled) {
+    if (this.ttsStatus) {
+      this.ttsStatus.textContent = enabled ? 'ON' : 'OFF';
     }
   }
 }

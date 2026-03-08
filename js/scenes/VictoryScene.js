@@ -48,6 +48,7 @@ export class VictoryScene {
     this._readyForInput = false;
 
     this.game.ui.showVictory(this.game.score);
+    this.game.tts.speak('You did it! You explored the whole Solar System!');
 
     // Show badge grid
     this.game.ui.showBadgeGrid(this.game.storage.getAchievements());

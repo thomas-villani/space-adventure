@@ -617,3 +617,45 @@ kbd {
   background: rgba(255, 215, 0, 0.15);
   color: #FFF;
 }
+
+/* ── Fun Fact Toast ── */
+#fun-fact-toast {
+  bottom: 30px;
+  right: 30px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(10, 10, 50, 0.92);
+  border: 2px solid #87CEEB;
+  border-radius: 15px;
+  padding: 14px 20px;
+  max-width: 420px;
+  z-index: 15;
+  transform: translateX(120%);
+  transition: transform 0.4s ease-out;
+}
+
+#fun-fact-toast.show {
+  display: flex !important;
+  transform: translateX(0);
+}
+
+.fun-fact-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(135, 206, 235, 0.2);
+  border: 2px solid #87CEEB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  color: #87CEEB;
+  flex-shrink: 0;
+}
+
+.fun-fact-text {
+  font-size: 1rem;
+  color: #DDD;
+  line-height: 1.4;
+}
