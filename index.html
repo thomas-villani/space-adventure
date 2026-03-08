@@ -94,6 +94,7 @@
     <p class="prompt blink">Press <kbd>Esc</kbd> to resume</p>
     <p class="prompt pause-hint">Press <kbd>J</kbd> for Space Journal</p>
     <p class="prompt pause-hint">Press <kbd>M</kbd> for Missions</p>
+    <p class="prompt pause-hint">Press <kbd>G</kbd> for Photo Gallery</p>
     <p class="prompt pause-hint" id="pause-save-hint">Press <kbd>S</kbd> to Save Game</p>
     <p class="prompt pause-hint">Press <kbd>L</kbd> to Load Game</p>
     <p class="prompt pause-hint" id="pause-tts-hint">Press <kbd>T</kbd> to toggle Read Aloud: <span id="tts-status">ON</span></p>
@@ -135,6 +136,23 @@
       <div class="badge-toast-title"></div>
       <div class="badge-toast-desc"></div>
     </div>
+  </div>
+
+  <!-- Photo mode HUD -->
+  <div id="photo-hud" class="overlay hidden">
+    <div class="photo-hud-text">Photo Mode &mdash; Arrows: orbit &bull; <kbd>Enter</kbd> snap &bull; <kbd>P</kbd> exit</div>
+  </div>
+
+  <!-- Photo gallery -->
+  <div id="gallery-screen" class="overlay screen hidden">
+    <h1 class="title">Photo Gallery</h1>
+    <div id="gallery-grid"></div>
+    <p class="prompt">Arrows: browse | <kbd>D</kbd> Download | <kbd>Del</kbd> Delete | <kbd>G</kbd>/<kbd>Esc</kbd> Close</p>
+  </div>
+
+  <!-- Postcard prompt -->
+  <div id="postcard-prompt" class="overlay hidden">
+    <p class="prompt">Press <kbd>C</kbd> to make a Postcard! &bull; <kbd>Enter</kbd> to skip</p>
   </div>
 
   <!-- Orbit mode UI -->

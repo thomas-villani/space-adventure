@@ -317,6 +317,11 @@ kbd {
   display: block !important;
 }
 
+#screen-flash.shutter {
+  background: rgba(255, 255, 255, 0.6);
+  display: block !important;
+}
+
 /* Victory */
 #victory-score {
   font-size: 2rem;
@@ -792,6 +797,106 @@ kbd {
   text-align: center;
   font-size: 1.2rem;
   padding: 2rem;
+}
+
+/* ── Photo Mode HUD ── */
+#photo-hud {
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #87CEEB;
+  border-radius: 15px;
+  padding: 10px 25px;
+  z-index: 20;
+}
+
+.photo-hud-text {
+  font-size: 1.1rem;
+  color: #87CEEB;
+  white-space: nowrap;
+}
+
+/* ── Photo Gallery ── */
+#gallery-screen {
+  background: rgba(5, 5, 30, 0.95);
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+#gallery-screen .title {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+#gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto 1rem;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.gallery-card {
+  background: rgba(255, 255, 255, 0.06);
+  border: 2px solid #334;
+  border-radius: 12px;
+  padding: 6px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+}
+
+.gallery-card.selected {
+  border-color: #FFD700;
+  transform: scale(1.03);
+}
+
+.gallery-card img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+.gallery-label {
+  font-size: 0.85rem;
+  color: #AAA;
+  margin-top: 4px;
+  padding: 2px;
+}
+
+.gallery-card.selected .gallery-label {
+  color: #FFD700;
+}
+
+.gallery-empty {
+  color: #888;
+  text-align: center;
+  font-size: 1.2rem;
+  padding: 2rem;
+}
+
+/* ── Postcard Prompt ── */
+#postcard-prompt {
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  border: 2px solid #FFD700;
+  border-radius: 15px;
+  padding: 12px 25px;
+  z-index: 15;
+}
+
+#postcard-prompt .prompt {
+  margin: 0;
+  font-size: 1.2rem;
+  white-space: nowrap;
+  color: #FFD700;
 }
 
 /* ── Mission HUD hint ── */

@@ -17,6 +17,7 @@ import { SatelliteLaunchScene } from './scenes/SatelliteLaunchScene.js';
 import { IceCrackerScene } from './scenes/IceCrackerScene.js';
 import { TTSManager } from './systems/TTSManager.js';
 import { MissionManager } from './systems/MissionManager.js';
+import { PhotoManager } from './systems/PhotoManager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_MAP } from './data/achievements.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS } from './data/solarSystem.js';
 import { FUN_FACTS } from './data/funFacts.js';
@@ -34,7 +35,7 @@ export const GameState = {
 export class Game {
   constructor(canvas) {
     this.canvas = canvas;
-    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, preserveDrawingBuffer: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -59,9 +60,11 @@ export class Game {
     this.wasHitThisRun = false;
     this.wormholeUsed = false;
 
-    // Journal/save/mission overlay state
+    // Journal/save/mission/photo overlay state
     this.journalOpen = false;
     this.missionOpen = false;
+    this.photoModeOpen = false;
+    this.galleryOpen = false;
     this.saveMenuOpen = false;
     this.loadMenuOpen = false;
     this.confirmOpen = false;
@@ -100,6 +103,14 @@ export class Game {
 
     // Mission system
     this.missions = new MissionManager(this);
+
+    // Photo system
+    this.photos = new PhotoManager(this.storage);
+    this._lastOrbitPhoto = null;
+    this._photoOrbitAngle = 0;
+    this._photoOrbitElevation = 0;
+    this._photoOrbitRadius = 15;
+    this._photoTarget = null;
 
     // Init menu scene (reuse solar system starfield)
     this.scenes[GameState.SOLAR_SYSTEM].init();
@@ -270,7 +281,7 @@ export class Game {
     // Only allow pause during active gameplay
     if (this.state === GameState.MENU || this.state === GameState.VICTORY) return;
     // Don't toggle pause if an overlay is open
-    if (this.journalOpen || this.missionOpen || this.saveMenuOpen || this.loadMenuOpen || this.confirmOpen) return;
+    if (this.journalOpen || this.missionOpen || this.photoModeOpen || this.galleryOpen || this.saveMenuOpen || this.loadMenuOpen || this.confirmOpen) return;
 
     this.paused = !this.paused;
     this.ui.showPause(this.paused);
@@ -292,6 +303,91 @@ export class Game {
       this.missionOpen = true;
       if (this.paused) this.ui.showPause(false);
       this.ui.showMissionBoard(this.missions.available, this.missions);
+    }
+    this.playTone(500, 0.08);
+  }
+
+  enterPhotoMode() {
+    if (this.state !== GameState.SOLAR_SYSTEM && this.state !== GameState.ORBIT) return;
+    if (this.paused || this.journalOpen || this.missionOpen || this.galleryOpen || this.saveMenuOpen || this.loadMenuOpen) return;
+
+    this.photoModeOpen = true;
+    this.dismissFunFact();
+
+    const activeScene = this.scenes[this.state];
+    const camera = activeScene.camera;
+
+    // Save camera state
+    this._savedCamPos = camera.position.clone();
+    this._savedCamQuat = camera.quaternion.clone();
+
+    // Determine orbit target and radius
+    if (this.state === GameState.SOLAR_SYSTEM) {
+      const shipPos = this.scenes[GameState.SOLAR_SYSTEM].ship.group.position;
+      this._photoTarget = shipPos.clone();
+      this._photoOrbitRadius = 18;
+    } else {
+      // Orbit scene — planet is at origin
+      this._photoTarget = new THREE.Vector3(0, 0, 0);
+      this._photoOrbitRadius = camera.position.length();
+    }
+
+    // Init orbit angles from current camera position
+    const offset = camera.position.clone().sub(this._photoTarget);
+    this._photoOrbitAngle = Math.atan2(offset.x, offset.z);
+    this._photoOrbitElevation = Math.asin(Math.max(-1, Math.min(1, offset.y / offset.length())));
+
+    this.ui.showPhotoHud();
+    this.playTone(800, 0.08, 'sine', 0.05);
+  }
+
+  exitPhotoMode() {
+    this.photoModeOpen = false;
+
+    const activeScene = this.scenes[this.state];
+    const camera = activeScene.camera;
+
+    // Restore camera state
+    camera.position.copy(this._savedCamPos);
+    camera.quaternion.copy(this._savedCamQuat);
+
+    this.ui.hidePhotoHud();
+    // Restore HUD
+    this.ui.onStateChange(this.state, this);
+    this.playTone(400, 0.08, 'sine', 0.05);
+  }
+
+  snapPhoto() {
+    const activeScene = this.scenes[this.state];
+    const dataUrl = this.photos.capture(this.renderer, activeScene.scene, activeScene.camera);
+
+    // Determine context
+    let planetName = 'Space';
+    if (this.state === GameState.ORBIT || this.state === GameState.LANDING) {
+      planetName = activeScene.planetData?.name || 'Space';
+    } else if (this.currentPlanet) {
+      planetName = this.currentPlanet.name || 'Space';
+    }
+
+    this.photos.savePhoto(dataUrl, { planet: planetName });
+
+    // Shutter effect
+    this.ui.flashScreen('shutter');
+    this.playMelody([[1200, 0.05], [800, 0.08]]);
+    this.ui.showScorePopup(0, 'Photo saved!');
+  }
+
+  toggleGallery() {
+    if (this.galleryOpen) {
+      this.galleryOpen = false;
+      this.ui.hideGallery();
+      if (this.paused) this.ui.showPause(true);
+    } else {
+      if (this.state !== GameState.SOLAR_SYSTEM && !this.paused) return;
+      if (this.journalOpen || this.missionOpen || this.photoModeOpen || this.saveMenuOpen || this.loadMenuOpen || this.confirmOpen) return;
+      this.galleryOpen = true;
+      if (this.paused) this.ui.showPause(false);
+      this.ui.showGallery(this.photos.getGallery());
     }
     this.playTone(500, 0.08);
   }
@@ -453,29 +549,45 @@ export class Game {
     requestAnimationFrame(() => this.loop());
     const dt = Math.min(this.clock.getDelta(), 0.05);
 
+    // Photo mode toggle (P key) — works in solar system or orbit
+    if (this.input.wasPressed('KeyP') && !this.paused && !this.journalOpen && !this.missionOpen && !this.galleryOpen) {
+      if (this.photoModeOpen) {
+        this.exitPhotoMode();
+      } else if (this.state === GameState.SOLAR_SYSTEM || this.state === GameState.ORBIT) {
+        this.enterPhotoMode();
+      }
+    }
+
+    // Gallery toggle (G key) — works in solar system or while paused
+    if (this.input.wasPressed('KeyG') && !this.journalOpen && !this.missionOpen && !this.photoModeOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
+      if (this.galleryOpen || this.state === GameState.SOLAR_SYSTEM || this.paused) {
+        this.toggleGallery();
+      }
+    }
+
     // Journal toggle (J key) — works in solar system or while paused
-    if (this.input.wasPressed('KeyJ') && !this.missionOpen) {
+    if (this.input.wasPressed('KeyJ') && !this.missionOpen && !this.photoModeOpen && !this.galleryOpen) {
       if (this.journalOpen || this.state === GameState.SOLAR_SYSTEM || this.paused) {
         this.toggleJournal();
       }
     }
 
     // Mission board toggle (M key) — works in solar system or while paused
-    if (this.input.wasPressed('KeyM') && !this.journalOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
+    if (this.input.wasPressed('KeyM') && !this.journalOpen && !this.photoModeOpen && !this.galleryOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
       if (this.missionOpen || this.state === GameState.SOLAR_SYSTEM || this.paused) {
         this.toggleMissionBoard();
       }
     }
 
     // Save menu (S key while paused in solar system)
-    if (this.input.wasPressed('KeyS') && !this.journalOpen && !this.missionOpen) {
+    if (this.input.wasPressed('KeyS') && !this.journalOpen && !this.missionOpen && !this.photoModeOpen && !this.galleryOpen) {
       if (this.saveMenuOpen || (this.paused && this.state === GameState.SOLAR_SYSTEM)) {
         this.toggleSaveMenu();
       }
     }
 
     // Load menu (L key — from menu or while paused)
-    if (this.input.wasPressed('KeyL') && !this.loadMenuOpen && !this.journalOpen && !this.missionOpen && !this.saveMenuOpen && !this.confirmOpen) {
+    if (this.input.wasPressed('KeyL') && !this.loadMenuOpen && !this.journalOpen && !this.missionOpen && !this.photoModeOpen && !this.galleryOpen && !this.saveMenuOpen && !this.confirmOpen) {
       if (this.state === GameState.MENU || (this.paused && this.state === GameState.SOLAR_SYSTEM)) {
         this.toggleLoadMenu();
         this.input.resetFrame();
@@ -553,13 +665,80 @@ export class Game {
       return;
     }
 
+    // If photo mode is active, handle camera orbit and snap
+    if (this.photoModeOpen) {
+      const activeScene = this.scenes[this.state];
+      const camera = activeScene.camera;
+
+      // Arrow keys orbit camera around target
+      if (this.input.isDown('ArrowLeft')) this._photoOrbitAngle -= dt * 1.5;
+      if (this.input.isDown('ArrowRight')) this._photoOrbitAngle += dt * 1.5;
+      if (this.input.isDown('ArrowUp')) this._photoOrbitElevation = Math.min(1.2, this._photoOrbitElevation + dt);
+      if (this.input.isDown('ArrowDown')) this._photoOrbitElevation = Math.max(-0.5, this._photoOrbitElevation - dt);
+
+      const r = this._photoOrbitRadius;
+      const cosElev = Math.cos(this._photoOrbitElevation);
+      camera.position.x = this._photoTarget.x + Math.sin(this._photoOrbitAngle) * r * cosElev;
+      camera.position.z = this._photoTarget.z + Math.cos(this._photoOrbitAngle) * r * cosElev;
+      camera.position.y = this._photoTarget.y + Math.sin(this._photoOrbitElevation) * r;
+      camera.lookAt(this._photoTarget);
+
+      // Snap photo on Enter/Space
+      if (this.input.enter) {
+        this.snapPhoto();
+      }
+
+      // Exit on Escape
+      if (this.input.wasPressed('Escape')) {
+        this.exitPhotoMode();
+      }
+
+      this.renderer.render(activeScene.scene, camera);
+      this.input.resetFrame();
+      return;
+    }
+
+    // If gallery is open, handle navigation
+    if (this.galleryOpen) {
+      const result = this.ui.handleGalleryInput(this.input);
+      if (result) {
+        if (result.action === 'download') {
+          const item = result.item;
+          const filename = item.galleryType === 'postcard'
+            ? `postcard-${item.planet || 'space'}.jpg`
+            : `space-photo-${item.planet || 'space'}.jpg`;
+          this.photos.downloadImage(item.dataUrl, filename);
+          this.playTone(600, 0.08);
+        } else if (result.action === 'delete') {
+          const item = result.item;
+          if (item.galleryType === 'postcard') {
+            this.photos.deletePostcard(item.index);
+          } else {
+            this.photos.deletePhoto(item.index);
+          }
+          // Refresh gallery
+          this.ui.showGallery(this.photos.getGallery());
+          this.playTone(300, 0.1);
+        }
+      }
+      if (this.input.wasPressed('Escape')) {
+        this.toggleGallery();
+      }
+      this.input.resetFrame();
+      const activeScene = this.scenes[this.state];
+      if (activeScene && activeScene.scene && activeScene.camera) {
+        this.renderer.render(activeScene.scene, activeScene.camera);
+      }
+      return;
+    }
+
     // Check for pause toggle (Esc)
     if (this.input.wasPressed('Escape')) {
       this.togglePause();
     }
 
     // TTS toggle (T key while paused)
-    if (this.input.wasPressed('KeyT') && this.paused && !this.journalOpen && !this.missionOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
+    if (this.input.wasPressed('KeyT') && this.paused && !this.journalOpen && !this.missionOpen && !this.photoModeOpen && !this.galleryOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
       const enabled = this.tts.toggle();
       this.ui.updateTTSStatus(enabled);
       this.playTone(enabled ? 800 : 400, 0.1);

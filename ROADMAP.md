@@ -208,7 +208,7 @@ These are good ideas but lower priority. Capture here for later.
 | 3 | Wormhole / Secret Passage | DONE |
 | 4 | Planet Mini-Games | DONE (7/7: Ring Catcher, Moon Bounce, Mining, Storm Surfer, Geyser Ride, Satellite Launch, Ice Cracker) |
 | 5 | Mission System | DONE (15 missions: routes, collections, deliveries, discoveries) |
-| 6 | Photo Mode & Postcards | TODO |
+| 6 | Photo Mode & Postcards | DONE |
 | 7 | Minimap / Autopilot | TODO |
 
 ## Priority Order (Suggested)

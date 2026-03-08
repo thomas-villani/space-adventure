@@ -54,6 +54,8 @@ export class OrbitScene {
     this.phase = 'approach';
     this.canSkip = false;
     this.orbitAngle = 0;
+    this._autoCaptured = false;
+    this.game._lastOrbitPhoto = null;
 
     // Remove old planet and parent
     if (this.planet) {
@@ -138,6 +140,12 @@ export class OrbitScene {
       this.camera.position.z = Math.cos(this.orbitAngle) * orbitRadius;
       this.camera.position.y = 2 + Math.sin(this.orbitAngle * 0.7) * 2; // gentle bob
       this.camera.lookAt(0, 0, 0);
+    }
+
+    // Auto-capture a photo for postcards at ~3s
+    if (!this._autoCaptured && this.timer >= 3 && this.game.photos) {
+      this._autoCaptured = true;
+      this.game._lastOrbitPhoto = this.game.photos.capture(this.game.renderer, this.scene, this.camera);
     }
 
     // Show skip hint after 1.5s

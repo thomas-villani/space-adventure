@@ -79,6 +79,14 @@ export class UIManager {
     this.missionScreen = document.getElementById('mission-screen');
     this.missionList = document.getElementById('mission-list');
     this.missionHud = document.getElementById('mission-hud');
+
+    // Photo mode & gallery
+    this.photoHud = document.getElementById('photo-hud');
+    this.galleryScreen = document.getElementById('gallery-screen');
+    this.galleryGrid = document.getElementById('gallery-grid');
+    this.postcardPrompt = document.getElementById('postcard-prompt');
+    this._galleryItems = [];
+    this._galleryIndex = 0;
   }
 
   showMenu() {
@@ -104,6 +112,9 @@ export class UIManager {
     this.confirmScreen.classList.add('hidden');
     if (this.missionScreen) this.missionScreen.classList.add('hidden');
     if (this.missionHud) this.missionHud.classList.add('hidden');
+    if (this.photoHud) this.photoHud.classList.add('hidden');
+    if (this.galleryScreen) this.galleryScreen.classList.add('hidden');
+    if (this.postcardPrompt) this.postcardPrompt.classList.add('hidden');
     this.hideFunFact();
 
     switch (state) {
@@ -582,5 +593,75 @@ export class UIManager {
       this.missionHud.textContent = `${available.length} Mission${available.length > 1 ? 's' : ''} [M]`;
     }
     this.missionHud.classList.remove('hidden');
+  }
+
+  // ── Photo Mode ──
+  showPhotoHud() {
+    this.hud.classList.add('hidden');
+    if (this.missionHud) this.missionHud.classList.add('hidden');
+    if (this.photoHud) this.photoHud.classList.remove('hidden');
+  }
+
+  hidePhotoHud() {
+    if (this.photoHud) this.photoHud.classList.add('hidden');
+  }
+
+  // ── Photo Gallery ──
+  showGallery(items) {
+    this.galleryGrid.innerHTML = '';
+    this._galleryItems = items;
+    this._galleryIndex = 0;
+
+    if (items.length === 0) {
+      this.galleryGrid.innerHTML = '<p class="gallery-empty">No photos yet! Press P during flight to take photos.</p>';
+    } else {
+      items.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'gallery-card' + (i === 0 ? ' selected' : '');
+        const img = document.createElement('img');
+        img.src = item.dataUrl;
+        card.appendChild(img);
+        const label = document.createElement('div');
+        label.className = 'gallery-label';
+        label.textContent = item.galleryType === 'postcard'
+          ? `Postcard: ${item.planet || 'Space'}`
+          : (item.planet || 'Space Photo');
+        card.appendChild(label);
+        this.galleryGrid.appendChild(card);
+      });
+    }
+    this.galleryScreen.classList.remove('hidden');
+  }
+
+  hideGallery() {
+    if (this.galleryScreen) this.galleryScreen.classList.add('hidden');
+  }
+
+  handleGalleryInput(input) {
+    if (!this._galleryItems || this._galleryItems.length === 0) return null;
+
+    const cols = 3;
+    const len = this._galleryItems.length;
+
+    if (input.wasPressed('ArrowRight')) this._galleryIndex = Math.min(len - 1, this._galleryIndex + 1);
+    if (input.wasPressed('ArrowLeft')) this._galleryIndex = Math.max(0, this._galleryIndex - 1);
+    if (input.wasPressed('ArrowDown')) this._galleryIndex = Math.min(len - 1, this._galleryIndex + cols);
+    if (input.wasPressed('ArrowUp')) this._galleryIndex = Math.max(0, this._galleryIndex - cols);
+
+    const cards = this.galleryGrid.querySelectorAll('.gallery-card');
+    cards.forEach((c, i) => c.classList.toggle('selected', i === this._galleryIndex));
+
+    if (input.wasPressed('KeyD')) return { action: 'download', item: this._galleryItems[this._galleryIndex] };
+    if (input.wasPressed('Delete') || input.wasPressed('Backspace')) return { action: 'delete', item: this._galleryItems[this._galleryIndex] };
+    return null;
+  }
+
+  // ── Postcard Prompt ──
+  showPostcardPrompt() {
+    if (this.postcardPrompt) this.postcardPrompt.classList.remove('hidden');
+  }
+
+  hidePostcardPrompt() {
+    if (this.postcardPrompt) this.postcardPrompt.classList.add('hidden');
   }
 }

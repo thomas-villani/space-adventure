@@ -3,7 +3,7 @@ import { Planet } from '../entities/Planet.js';
 import { GameState } from '../game.js';
 import { DESTINATIONS, DESTINATION_MAP, REQUIRED_DESTINATIONS } from '../data/solarSystem.js';
 
-const Phase = { ENTERING: 'ENTERING', FACTS: 'FACTS', QUIZ: 'QUIZ', WAIT_DISMISS: 'WAIT_DISMISS', DONE: 'DONE' };
+const Phase = { ENTERING: 'ENTERING', FACTS: 'FACTS', QUIZ: 'QUIZ', WAIT_DISMISS: 'WAIT_DISMISS', POSTCARD_OFFER: 'POSTCARD_OFFER', COMPOSING: 'COMPOSING', DONE: 'DONE' };
 
 export class LandingScene {
   constructor(game) {
@@ -92,6 +92,7 @@ export class LandingScene {
   exit() {
     this.game.ui.hideFacts();
     this.game.ui.hideQuiz();
+    this.game.ui.hidePostcardPrompt();
   }
 
   update(dt) {
@@ -140,6 +141,9 @@ export class LandingScene {
               // After answering, wait for Enter to dismiss
               this.phase = Phase.WAIT_DISMISS;
             });
+          } else if (this.game.photos) {
+            this.phase = Phase.POSTCARD_OFFER;
+            this.game.ui.showPostcardPrompt();
           } else {
             this.phase = Phase.DONE;
           }
@@ -152,8 +156,44 @@ export class LandingScene {
 
       case Phase.WAIT_DISMISS:
         if (input.enter) {
-          this.phase = Phase.DONE;
+          // Offer postcard if photo system is available
+          if (this.game.photos) {
+            this.game.ui.hideQuiz();
+            this.phase = Phase.POSTCARD_OFFER;
+            this.game.ui.showPostcardPrompt();
+          } else {
+            this.phase = Phase.DONE;
+          }
         }
+        break;
+
+      case Phase.POSTCARD_OFFER:
+        if (input.enter) {
+          // Skip postcard
+          this.game.ui.hidePostcardPrompt();
+          this.phase = Phase.DONE;
+        } else if (this.game.input.wasPressed('KeyC')) {
+          this.game.ui.hidePostcardPrompt();
+          // Get photo from orbit auto-capture or capture current scene
+          const photoUrl = this.game._lastOrbitPhoto ||
+            this.game.photos.capture(this.game.renderer, this.scene, this.camera);
+          this.phase = Phase.COMPOSING;
+          this.game.photos.composePostcard(photoUrl, this.planetData, 'Space Explorer')
+            .then(postcardUrl => {
+              this.game.photos.savePostcard(postcardUrl, {
+                planet: this.planetData.name,
+                planetId: this.planetData.id,
+              });
+              this.game.ui.showScorePopup(0, 'Postcard saved!');
+              this.game.playMelody([[660, 0.1], [880, 0.1], [1047, 0.15]]);
+              this.game.tts.speak('Postcard saved!');
+              setTimeout(() => { this.phase = Phase.DONE; }, 800);
+            });
+        }
+        break;
+
+      case Phase.COMPOSING:
+        // Waiting for postcard to finish composing
         break;
 
       case Phase.DONE:

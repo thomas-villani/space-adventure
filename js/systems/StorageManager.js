@@ -94,4 +94,40 @@ export class StorageManager {
     const saves = this.getSaves().filter(s => s.slot !== slot);
     this.setJSON('saves', saves);
   }
+
+  // ── Photos ──
+  getPhotos() {
+    return this.getJSON('photos') || [];
+  }
+
+  savePhoto(entry) {
+    const photos = this.getPhotos();
+    photos.unshift(entry);
+    if (photos.length > 10) photos.length = 10;
+    this.setJSON('photos', photos);
+  }
+
+  deletePhoto(index) {
+    const photos = this.getPhotos();
+    photos.splice(index, 1);
+    this.setJSON('photos', photos);
+  }
+
+  // ── Postcards ──
+  getPostcards() {
+    return this.getJSON('postcards') || [];
+  }
+
+  savePostcard(entry) {
+    const postcards = this.getPostcards();
+    postcards.unshift(entry);
+    if (postcards.length > 10) postcards.length = 10;
+    this.setJSON('postcards', postcards);
+  }
+
+  deletePostcard(index) {
+    const postcards = this.getPostcards();
+    postcards.splice(index, 1);
+    this.setJSON('postcards', postcards);
+  }
 }
