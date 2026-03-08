@@ -1,5 +1,5 @@
 import { GameState } from '../game.js';
-import { DESTINATIONS, REQUIRED_DESTINATIONS } from '../data/solarSystem.js';
+import { DESTINATIONS, REQUIRED_DESTINATIONS, DESTINATION_MAP } from '../data/solarSystem.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 
 export class UIManager {
@@ -74,6 +74,11 @@ export class UIManager {
 
     // TTS status display
     this.ttsStatus = document.getElementById('tts-status');
+
+    // Mission board
+    this.missionScreen = document.getElementById('mission-screen');
+    this.missionList = document.getElementById('mission-list');
+    this.missionHud = document.getElementById('mission-hud');
   }
 
   showMenu() {
@@ -97,6 +102,8 @@ export class UIManager {
     this.orbitName.classList.add('hidden');
     this.orbitSkipHint.classList.add('hidden');
     this.confirmScreen.classList.add('hidden');
+    if (this.missionScreen) this.missionScreen.classList.add('hidden');
+    if (this.missionHud) this.missionHud.classList.add('hidden');
     this.hideFunFact();
 
     switch (state) {
@@ -104,6 +111,7 @@ export class UIManager {
         this.hud.classList.remove('hidden');
         this.updateScore(game.score);
         this.updateVisited(game.visited);
+        if (game.missions) this.updateMissionHud(game.missions.available);
         break;
       case GameState.ASTEROID:
         this.hud.classList.add('hidden');
@@ -528,5 +536,51 @@ export class UIManager {
     if (this.ttsStatus) {
       this.ttsStatus.textContent = enabled ? 'ON' : 'OFF';
     }
+  }
+
+  // ── Mission Board ──
+  showMissionBoard(missions, manager) {
+    this.missionList.innerHTML = '';
+    if (!missions || missions.length === 0) {
+      this.missionList.innerHTML = '<p class="mission-empty">All missions complete! Great exploring!</p>';
+    }
+    for (const mission of missions) {
+      const card = document.createElement('div');
+      card.className = 'mission-card active';
+
+      const progress = manager.getProgress(mission);
+
+      let objectivesHtml = '<div class="mission-objectives">';
+      for (const id of mission.objectives) {
+        const dest = DESTINATION_MAP[id];
+        const name = dest ? dest.name : id;
+        const done = manager.isObjectiveDone(mission, id);
+        objectivesHtml += `<span class="mission-obj ${done ? 'done' : ''}">${done ? '\u2713 ' : ''}${name}</span>`;
+      }
+      objectivesHtml += '</div>';
+
+      card.innerHTML =
+        `<h4>${mission.name}</h4>` +
+        `<p>${mission.description}</p>` +
+        objectivesHtml +
+        `<div class="mission-progress"><div class="mission-progress-fill" style="width: ${progress * 100}%"></div></div>` +
+        `<div class="mission-reward">Reward: +${mission.reward} points</div>`;
+      this.missionList.appendChild(card);
+    }
+    this.missionScreen.classList.remove('hidden');
+  }
+
+  hideMissionBoard() {
+    if (this.missionScreen) this.missionScreen.classList.add('hidden');
+  }
+
+  updateMissionHud(available) {
+    if (!this.missionHud) return;
+    if (!available || available.length === 0) {
+      this.missionHud.textContent = 'Missions done! [M]';
+    } else {
+      this.missionHud.textContent = `${available.length} Mission${available.length > 1 ? 's' : ''} [M]`;
+    }
+    this.missionHud.classList.remove('hidden');
   }
 }

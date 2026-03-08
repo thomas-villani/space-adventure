@@ -93,6 +93,7 @@
     <p class="subtitle">Take a break, space explorer!</p>
     <p class="prompt blink">Press <kbd>Esc</kbd> to resume</p>
     <p class="prompt pause-hint">Press <kbd>J</kbd> for Space Journal</p>
+    <p class="prompt pause-hint">Press <kbd>M</kbd> for Missions</p>
     <p class="prompt pause-hint" id="pause-save-hint">Press <kbd>S</kbd> to Save Game</p>
     <p class="prompt pause-hint">Press <kbd>L</kbd> to Load Game</p>
     <p class="prompt pause-hint" id="pause-tts-hint">Press <kbd>T</kbd> to toggle Read Aloud: <span id="tts-status">ON</span></p>
@@ -110,6 +111,16 @@
     <div id="journal-grid"></div>
     <p class="prompt">Press <kbd>J</kbd> or <kbd>Esc</kbd> to close</p>
   </div>
+
+  <!-- Mission board -->
+  <div id="mission-screen" class="overlay screen hidden">
+    <h1 class="title">Mission Board</h1>
+    <div id="mission-list"></div>
+    <p class="prompt">Press <kbd>M</kbd> or <kbd>Esc</kbd> to close</p>
+  </div>
+
+  <!-- Mission HUD hint -->
+  <div id="mission-hud" class="overlay hidden"></div>
 
   <!-- Fun fact toast -->
   <div id="fun-fact-toast" class="overlay hidden">

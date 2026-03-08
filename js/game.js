@@ -16,6 +16,7 @@ import { GeyserRideScene } from './scenes/GeyserRideScene.js';
 import { SatelliteLaunchScene } from './scenes/SatelliteLaunchScene.js';
 import { IceCrackerScene } from './scenes/IceCrackerScene.js';
 import { TTSManager } from './systems/TTSManager.js';
+import { MissionManager } from './systems/MissionManager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_MAP } from './data/achievements.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS } from './data/solarSystem.js';
 import { FUN_FACTS } from './data/funFacts.js';
@@ -58,8 +59,9 @@ export class Game {
     this.wasHitThisRun = false;
     this.wormholeUsed = false;
 
-    // Journal/save overlay state
+    // Journal/save/mission overlay state
     this.journalOpen = false;
+    this.missionOpen = false;
     this.saveMenuOpen = false;
     this.loadMenuOpen = false;
     this.confirmOpen = false;
@@ -95,6 +97,9 @@ export class Game {
       'satellite-launch': new SatelliteLaunchScene(this),
       'ice-cracker': new IceCrackerScene(this),
     };
+
+    // Mission system
+    this.missions = new MissionManager(this);
 
     // Init menu scene (reuse solar system starfield)
     this.scenes[GameState.SOLAR_SYSTEM].init();
@@ -175,6 +180,7 @@ export class Game {
     this.visited.add(planetId);
     this.ui.updateVisited(this.visited);
     this.checkAchievements();
+    this.missions.onVisit(planetId);
   }
 
   checkAchievements() {
@@ -264,7 +270,7 @@ export class Game {
     // Only allow pause during active gameplay
     if (this.state === GameState.MENU || this.state === GameState.VICTORY) return;
     // Don't toggle pause if an overlay is open
-    if (this.journalOpen || this.saveMenuOpen || this.loadMenuOpen || this.confirmOpen) return;
+    if (this.journalOpen || this.missionOpen || this.saveMenuOpen || this.loadMenuOpen || this.confirmOpen) return;
 
     this.paused = !this.paused;
     this.ui.showPause(this.paused);
@@ -274,6 +280,20 @@ export class Game {
       this.clock.getDelta();
     }
     this.playTone(this.paused ? 400 : 600, 0.1);
+  }
+
+  toggleMissionBoard() {
+    if (this.missionOpen) {
+      this.missionOpen = false;
+      this.ui.hideMissionBoard();
+      if (this.paused) this.ui.showPause(true);
+    } else {
+      if (this.state !== GameState.SOLAR_SYSTEM && !this.paused) return;
+      this.missionOpen = true;
+      if (this.paused) this.ui.showPause(false);
+      this.ui.showMissionBoard(this.missions.available, this.missions);
+    }
+    this.playTone(500, 0.08);
   }
 
   toggleJournal() {
@@ -369,6 +389,7 @@ export class Game {
         z: ship.group.quaternion.z, w: ship.group.quaternion.w,
       },
       achievements: this.storage.getAchievements(),
+      missions: this.missions.getState(),
     });
     this._hasSaved = true;
     this.saveMenuOpen = false;
@@ -402,6 +423,9 @@ export class Game {
       }
     }
 
+    // Restore missions
+    this.missions.loadState(save.missions);
+
     // Enter solar system
     this.setState(GameState.SOLAR_SYSTEM);
 
@@ -430,21 +454,28 @@ export class Game {
     const dt = Math.min(this.clock.getDelta(), 0.05);
 
     // Journal toggle (J key) — works in solar system or while paused
-    if (this.input.wasPressed('KeyJ')) {
+    if (this.input.wasPressed('KeyJ') && !this.missionOpen) {
       if (this.journalOpen || this.state === GameState.SOLAR_SYSTEM || this.paused) {
         this.toggleJournal();
       }
     }
 
+    // Mission board toggle (M key) — works in solar system or while paused
+    if (this.input.wasPressed('KeyM') && !this.journalOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
+      if (this.missionOpen || this.state === GameState.SOLAR_SYSTEM || this.paused) {
+        this.toggleMissionBoard();
+      }
+    }
+
     // Save menu (S key while paused in solar system)
-    if (this.input.wasPressed('KeyS') && !this.journalOpen) {
+    if (this.input.wasPressed('KeyS') && !this.journalOpen && !this.missionOpen) {
       if (this.saveMenuOpen || (this.paused && this.state === GameState.SOLAR_SYSTEM)) {
         this.toggleSaveMenu();
       }
     }
 
     // Load menu (L key — from menu or while paused)
-    if (this.input.wasPressed('KeyL') && !this.loadMenuOpen && !this.journalOpen && !this.saveMenuOpen && !this.confirmOpen) {
+    if (this.input.wasPressed('KeyL') && !this.loadMenuOpen && !this.journalOpen && !this.missionOpen && !this.saveMenuOpen && !this.confirmOpen) {
       if (this.state === GameState.MENU || (this.paused && this.state === GameState.SOLAR_SYSTEM)) {
         this.toggleLoadMenu();
         this.input.resetFrame();
@@ -509,13 +540,26 @@ export class Game {
       return;
     }
 
+    // If mission board is open, consume input but don't update game
+    if (this.missionOpen) {
+      if (this.input.wasPressed('Escape')) {
+        this.toggleMissionBoard();
+      }
+      this.input.resetFrame();
+      const activeScene = this.scenes[this.state];
+      if (activeScene && activeScene.scene && activeScene.camera) {
+        this.renderer.render(activeScene.scene, activeScene.camera);
+      }
+      return;
+    }
+
     // Check for pause toggle (Esc)
     if (this.input.wasPressed('Escape')) {
       this.togglePause();
     }
 
     // TTS toggle (T key while paused)
-    if (this.input.wasPressed('KeyT') && this.paused && !this.journalOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
+    if (this.input.wasPressed('KeyT') && this.paused && !this.journalOpen && !this.missionOpen && !this.saveMenuOpen && !this.loadMenuOpen && !this.confirmOpen) {
       const enabled = this.tts.toggle();
       this.ui.updateTTSStatus(enabled);
       this.playTone(enabled ? 800 : 400, 0.1);

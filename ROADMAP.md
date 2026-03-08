@@ -195,6 +195,7 @@ These are good ideas but lower priority. Capture here for later.
 - **Multiple pilot profiles** — siblings get separate saves with their own name/progress.
 - **Solar flare events** — occasional golden particle wave from the Sun. Purely visual.
 - **Alien radio signal** — strange tones as you approach Voyager. Mystery element.
+- **Better TTS voice-overs** — Replace browser SpeechSynthesis with pre-generated .wav files from a higher-quality TTS API (e.g. ElevenLabs, OpenAI TTS, Google Cloud TTS). Pre-render all planet facts, quiz questions, fun facts, and UI prompts as audio files. Ship them as static assets so playback is instant, consistent across browsers, and sounds great for kids. Fallback to browser TTS if files aren't loaded.
 
 ---
 
@@ -206,7 +207,7 @@ These are good ideas but lower priority. Capture here for later.
 | 2 | "Did You Know?" Random Facts | DONE |
 | 3 | Wormhole / Secret Passage | DONE |
 | 4 | Planet Mini-Games | DONE (7/7: Ring Catcher, Moon Bounce, Mining, Storm Surfer, Geyser Ride, Satellite Launch, Ice Cracker) |
-| 5 | Mission System | TODO |
+| 5 | Mission System | DONE (15 missions: routes, collections, deliveries, discoveries) |
 | 6 | Photo Mode & Postcards | TODO |
 | 7 | Minimap / Autopilot | TODO |
 
