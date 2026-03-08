@@ -36,6 +36,7 @@ export const DESTINATIONS = [
   {
     id: 'mercury', name: 'Mercury', type: 'planet',
     color: 0xAAAAAA, size: 1.5, distance: 45, angle: 0.8,
+    miniGame: 'satellite-launch',
     facts: [
       "Mercury is the closest planet to the Sun!",
       "A year on Mercury is only 88 Earth days!",
@@ -65,6 +66,7 @@ export const DESTINATIONS = [
   {
     id: 'venus', name: 'Venus', type: 'planet',
     color: 0xFFCC66, size: 2.2, distance: 70, angle: 2.1,
+    miniGame: 'satellite-launch',
     facts: [
       "Venus is the hottest planet in the solar system!",
       "Venus spins backwards compared to most planets!",
@@ -93,6 +95,7 @@ export const DESTINATIONS = [
   {
     id: 'earth', name: 'Earth', type: 'planet',
     color: 0x4488FF, size: 2.3, distance: 95, angle: 3.8,
+    miniGame: 'satellite-launch',
     facts: [
       "Earth is our home planet!",
       "Earth is the only planet known to have life!",
@@ -152,6 +155,7 @@ export const DESTINATIONS = [
   {
     id: 'mars', name: 'Mars', type: 'planet',
     color: 0xDD4422, size: 1.8, distance: 130, angle: 5.2,
+    miniGame: 'satellite-launch',
     facts: [
       "Mars is called the Red Planet!",
       "Mars has the tallest mountain in the solar system — Olympus Mons!",
@@ -181,6 +185,7 @@ export const DESTINATIONS = [
   {
     id: 'phobos', name: 'Phobos', type: 'moon', parent: 'mars',
     color: 0x887766, size: 0.5, distance: 5, angle: 0.8,
+    miniGame: 'moon-bounce',
     facts: [
       "Phobos is one of Mars's two tiny moons!",
       "Phobos is shaped like a potato — not round like most moons!",
@@ -209,6 +214,7 @@ export const DESTINATIONS = [
   {
     id: 'deimos', name: 'Deimos', type: 'moon', parent: 'mars',
     color: 0x998877, size: 0.3, distance: 7, angle: 3.5,
+    miniGame: 'moon-bounce',
     facts: [
       "Deimos is the smaller of Mars's two moons!",
       "Deimos is one of the smallest moons in the solar system!",
@@ -300,6 +306,7 @@ export const DESTINATIONS = [
   {
     id: 'jupiter', name: 'Jupiter', type: 'planet',
     color: 0xDD9955, size: 6, distance: 220, angle: 0.5,
+    miniGame: 'storm-surfer',
     facts: [
       "Jupiter is the biggest planet — over 1,000 Earths could fit inside!",
       "Jupiter has a giant storm called the Great Red Spot!",
@@ -329,6 +336,7 @@ export const DESTINATIONS = [
   {
     id: 'io', name: 'Io', type: 'moon', parent: 'jupiter',
     color: 0xFFFF44, size: 0.7, distance: 8, angle: 0.5,
+    miniGame: 'storm-surfer',
     facts: [
       "Io is the most volcanic place in the solar system!",
       "Io has over 400 active volcanoes!",
@@ -357,6 +365,7 @@ export const DESTINATIONS = [
   {
     id: 'europa', name: 'Europa', type: 'moon', parent: 'jupiter',
     color: 0xCCDDFF, size: 0.7, distance: 10, angle: 2.0,
+    miniGame: 'ice-cracker',
     facts: [
       "Europa has a giant ocean hidden under its icy surface!",
       "Scientists think Europa might have conditions for life!",
@@ -385,6 +394,7 @@ export const DESTINATIONS = [
   {
     id: 'ganymede', name: 'Ganymede', type: 'moon', parent: 'jupiter',
     color: 0x998877, size: 0.9, distance: 12, angle: 3.8,
+    miniGame: 'ice-cracker',
     facts: [
       "Ganymede is the largest moon in the solar system!",
       "Ganymede is even bigger than the planet Mercury!",
@@ -413,6 +423,7 @@ export const DESTINATIONS = [
   {
     id: 'callisto', name: 'Callisto', type: 'moon', parent: 'jupiter',
     color: 0x666677, size: 0.8, distance: 14, angle: 5.5,
+    miniGame: 'ice-cracker',
     facts: [
       "Callisto is the most cratered object in the solar system!",
       "Callisto might have a salty ocean deep inside!",
@@ -473,6 +484,7 @@ export const DESTINATIONS = [
   {
     id: 'titan', name: 'Titan', type: 'moon', parent: 'saturn',
     color: 0xDD9944, size: 0.9, distance: 8, angle: 1.0,
+    miniGame: 'storm-surfer',
     facts: [
       "Titan is Saturn's largest moon!",
       "Titan has lakes and rivers — but they're made of liquid methane!",
@@ -501,6 +513,7 @@ export const DESTINATIONS = [
   {
     id: 'enceladus', name: 'Enceladus', type: 'moon', parent: 'saturn',
     color: 0xFFFFFF, size: 0.5, distance: 7, angle: 3.5,
+    miniGame: 'geyser-ride',
     facts: [
       "Enceladus shoots giant geysers of water into space!",
       "Enceladus is one of the shiniest objects in the solar system!",
@@ -531,6 +544,7 @@ export const DESTINATIONS = [
     id: 'uranus', name: 'Uranus', type: 'planet',
     color: 0x88CCDD, size: 3.5, distance: 360, angle: 4.5,
     hasRings: true, ringColor: 0x6699AA,
+    miniGame: 'ring-catcher',
     facts: [
       "Uranus rotates on its side like a rolling ball!",
       "Uranus is an ice giant — very cold!",
@@ -560,6 +574,7 @@ export const DESTINATIONS = [
   {
     id: 'miranda', name: 'Miranda', type: 'moon', parent: 'uranus',
     color: 0xAABBCC, size: 0.4, distance: 5, angle: 2.0,
+    miniGame: 'geyser-ride',
     facts: [
       "Miranda has the tallest cliff in the solar system!",
       "The cliff is called Verona Rupes — it's 20 km tall!",
@@ -589,6 +604,7 @@ export const DESTINATIONS = [
   {
     id: 'neptune', name: 'Neptune', type: 'planet',
     color: 0x3344DD, size: 3.3, distance: 420, angle: 1.2,
+    miniGame: 'storm-surfer',
     facts: [
       "Neptune has the fastest winds in the solar system — up to 2,100 km/h!",
       "Neptune is the farthest planet from the Sun!",
@@ -618,6 +634,7 @@ export const DESTINATIONS = [
   {
     id: 'triton', name: 'Triton', type: 'moon', parent: 'neptune',
     color: 0xCCDDCC, size: 0.7, distance: 6, angle: 4.0,
+    miniGame: 'ice-cracker',
     facts: [
       "Triton orbits Neptune backwards!",
       "Triton has geysers that shoot nitrogen gas!",
@@ -646,6 +663,7 @@ export const DESTINATIONS = [
   {
     id: 'pluto', name: 'Pluto', type: 'planet',
     color: 0xDDCCAA, size: 1.0, distance: 480, angle: 5.0,
+    miniGame: 'ice-cracker',
     facts: [
       "Pluto used to be the 9th planet — now it's a dwarf planet!",
       "Pluto is smaller than Earth's Moon!",
@@ -675,6 +693,7 @@ export const DESTINATIONS = [
   {
     id: 'charon', name: 'Charon', type: 'moon', parent: 'pluto',
     color: 0x999999, size: 0.6, distance: 4, angle: 2.5,
+    miniGame: 'ice-cracker',
     facts: [
       "Charon is Pluto's biggest moon!",
       "Charon and Pluto always show the same face to each other!",
@@ -705,6 +724,7 @@ export const DESTINATIONS = [
   {
     id: 'arrokoth', name: 'Arrokoth', type: 'planet',
     color: 0xCC8866, size: 0.6, distance: 450, angle: 3.5,
+    miniGame: 'mining',
     facts: [
       "Arrokoth is shaped like a snowman — two lumps stuck together!",
       "Arrokoth was visited by the New Horizons spacecraft in 2019!",
@@ -733,6 +753,7 @@ export const DESTINATIONS = [
   {
     id: 'makemake', name: 'Makemake', type: 'planet',
     color: 0xDDAACC, size: 1.0, distance: 465, angle: 2.0,
+    miniGame: 'ice-cracker',
     facts: [
       "Makemake is a dwarf planet way out past Neptune!",
       "Makemake is named after the god of creation from Easter Island!",
@@ -791,6 +812,7 @@ export const DESTINATIONS = [
   {
     id: 'eris', name: 'Eris', type: 'planet',
     color: 0xEEEEDD, size: 1.1, distance: 500, angle: 0.3,
+    miniGame: 'ice-cracker',
     facts: [
       "Eris is the most massive dwarf planet we know about!",
       "Eris is so far away that it takes over 550 years to orbit the Sun!",

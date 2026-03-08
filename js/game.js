@@ -11,6 +11,10 @@ import { VictoryScene } from './scenes/VictoryScene.js';
 import { RingCatcherScene } from './scenes/RingCatcherScene.js';
 import { MoonBounceScene } from './scenes/MoonBounceScene.js';
 import { MiningScene } from './scenes/MiningScene.js';
+import { StormSurferScene } from './scenes/StormSurferScene.js';
+import { GeyserRideScene } from './scenes/GeyserRideScene.js';
+import { SatelliteLaunchScene } from './scenes/SatelliteLaunchScene.js';
+import { IceCrackerScene } from './scenes/IceCrackerScene.js';
 import { TTSManager } from './systems/TTSManager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_MAP } from './data/achievements.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS } from './data/solarSystem.js';
@@ -86,6 +90,10 @@ export class Game {
       'ring-catcher': new RingCatcherScene(this),
       'moon-bounce': new MoonBounceScene(this),
       'mining': new MiningScene(this),
+      'storm-surfer': new StormSurferScene(this),
+      'geyser-ride': new GeyserRideScene(this),
+      'satellite-launch': new SatelliteLaunchScene(this),
+      'ice-cracker': new IceCrackerScene(this),
     };
 
     // Init menu scene (reuse solar system starfield)
