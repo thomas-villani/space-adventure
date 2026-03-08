@@ -122,6 +122,7 @@ export const DESTINATIONS = [
   {
     id: 'moon', name: 'The Moon', type: 'moon', parent: 'earth',
     color: 0xCCCCCC, size: 0.8, distance: 5, angle: 1.2,
+    miniGame: 'moon-bounce',
     facts: [
       "The Moon is Earth's only natural satellite!",
       "Astronauts first walked on the Moon in 1969!",
@@ -238,6 +239,7 @@ export const DESTINATIONS = [
   {
     id: 'ceres', name: 'Ceres', type: 'planet',
     color: 0xBBBBAA, size: 1.2, distance: 170, angle: 3.0,
+    miniGame: 'mining',
     facts: [
       "Ceres is a dwarf planet in the asteroid belt!",
       "Ceres is the largest object in the asteroid belt!",
@@ -267,6 +269,7 @@ export const DESTINATIONS = [
   {
     id: 'vesta', name: 'Vesta', type: 'planet',
     color: 0xBBAAAA, size: 0.9, distance: 160, angle: 1.5,
+    miniGame: 'mining',
     facts: [
       "Vesta is one of the largest asteroids in the solar system!",
       "Vesta is so bright you can sometimes see it without a telescope!",
@@ -440,6 +443,7 @@ export const DESTINATIONS = [
     id: 'saturn', name: 'Saturn', type: 'planet',
     color: 0xEEDD88, size: 5, distance: 290, angle: 2.8,
     hasRings: true, ringColor: 0xCCBB88,
+    miniGame: 'ring-catcher',
     facts: [
       "Saturn has the most spectacular rings of any planet!",
       "Saturn is so light it could float in a giant bathtub!",
@@ -758,6 +762,7 @@ export const DESTINATIONS = [
     id: 'haumea', name: 'Haumea', type: 'planet',
     color: 0xCCDDDD, size: 1.0, distance: 475, angle: 4.2,
     hasRings: true, ringColor: 0x8899AA,
+    miniGame: 'ring-catcher',
     facts: [
       "Haumea spins so fast that it's shaped like an egg!",
       "Haumea is the fastest spinning large object in our solar system!",

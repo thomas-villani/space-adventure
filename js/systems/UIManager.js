@@ -31,6 +31,10 @@ export class UIManager {
     this.asteroidProgressFill = document.getElementById('asteroid-progress-fill');
     this.asteroidScore = document.getElementById('asteroid-score');
 
+    this.miniGameHud = document.getElementById('minigame-hud');
+    this.miniGameTitle = document.getElementById('minigame-title');
+    this.miniGameProgressFill = document.getElementById('minigame-progress-fill');
+
     this.screenFlash = document.getElementById('screen-flash');
     this.flashTimeout = null;
 
@@ -88,6 +92,7 @@ export class UIManager {
     this.quizPanel.classList.add('hidden');
     this.victoryScreen.classList.add('hidden');
     this.asteroidHud.classList.add('hidden');
+    this.miniGameHud.classList.add('hidden');
     this.proximityPrompt.classList.add('hidden');
     this.orbitName.classList.add('hidden');
     this.orbitSkipHint.classList.add('hidden');
@@ -101,6 +106,9 @@ export class UIManager {
         this.updateVisited(game.visited);
         break;
       case GameState.ASTEROID:
+        this.hud.classList.add('hidden');
+        break;
+      case GameState.MINI_GAME:
         this.hud.classList.add('hidden');
         break;
       case GameState.ORBIT:
@@ -229,6 +237,21 @@ export class UIManager {
 
   updateAsteroidScore(score) {
     this.asteroidScore.textContent = `Score: ${Math.max(0, score)}`;
+  }
+
+  // Mini-game HUD
+  showMiniGameHUD(title) {
+    this.miniGameTitle.textContent = title;
+    this.miniGameProgressFill.style.width = '0%';
+    this.miniGameHud.classList.remove('hidden');
+  }
+
+  hideMiniGameHUD() {
+    this.miniGameHud.classList.add('hidden');
+  }
+
+  updateMiniGameProgress(pct) {
+    this.miniGameProgressFill.style.width = `${pct * 100}%`;
   }
 
   // Score popup announcement
@@ -489,7 +512,7 @@ export class UIManager {
     this.funFactToast.className = 'overlay show';
     this._funFactTimeout = setTimeout(() => {
       this.hideFunFact();
-    }, 8000);
+    }, 30000);
   }
 
   hideFunFact() {

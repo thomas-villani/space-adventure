@@ -205,7 +205,7 @@ These are good ideas but lower priority. Capture here for later.
 | 1 | TTS (Text-to-Speech) | DONE |
 | 2 | "Did You Know?" Random Facts | DONE |
 | 3 | Wormhole / Secret Passage | DONE |
-| 4 | Planet Mini-Games | TODO |
+| 4 | Planet Mini-Games | IN PROGRESS (3/12: Ring Catcher, Moon Bounce, Mining) |
 | 5 | Mission System | TODO |
 | 6 | Photo Mode & Postcards | TODO |
 | 7 | Minimap / Autopilot | TODO |

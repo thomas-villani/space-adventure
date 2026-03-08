@@ -8,6 +8,9 @@ import { AsteroidScene } from './scenes/AsteroidScene.js';
 import { OrbitScene } from './scenes/OrbitScene.js';
 import { LandingScene } from './scenes/LandingScene.js';
 import { VictoryScene } from './scenes/VictoryScene.js';
+import { RingCatcherScene } from './scenes/RingCatcherScene.js';
+import { MoonBounceScene } from './scenes/MoonBounceScene.js';
+import { MiningScene } from './scenes/MiningScene.js';
 import { TTSManager } from './systems/TTSManager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_MAP } from './data/achievements.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS } from './data/solarSystem.js';
@@ -19,6 +22,7 @@ export const GameState = {
   ASTEROID: 'ASTEROID',
   ORBIT: 'ORBIT',
   LANDING: 'LANDING',
+  MINI_GAME: 'MINI_GAME',
   VICTORY: 'VICTORY',
 };
 
@@ -77,6 +81,13 @@ export class Game {
       [GameState.VICTORY]: new VictoryScene(this),
     };
 
+    // Mini-game scenes (dynamically mapped to MINI_GAME state)
+    this.miniGameScenes = {
+      'ring-catcher': new RingCatcherScene(this),
+      'moon-bounce': new MoonBounceScene(this),
+      'mining': new MiningScene(this),
+    };
+
     // Init menu scene (reuse solar system starfield)
     this.scenes[GameState.SOLAR_SYSTEM].init();
 
@@ -125,6 +136,12 @@ export class Game {
 
     this.tts.stop();
     this.dismissFunFact();
+
+    // Dynamically route to the correct mini-game scene
+    if (newState === GameState.MINI_GAME && data?.planet?.miniGame) {
+      this.scenes[GameState.MINI_GAME] = this.miniGameScenes[data.planet.miniGame];
+    }
+
     this.state = newState;
     // Update UI before enter() so scene can show panels on top
     this.ui.onStateChange(newState, this);
@@ -225,7 +242,7 @@ export class Game {
     this.playTone(900, 0.08, 'sine', 0.05);
 
     // Auto-clear active flag after toast dismisses
-    setTimeout(() => { this._funFactActive = false; }, 9000);
+    setTimeout(() => { this._funFactActive = false; }, 31000);
   }
 
   dismissFunFact() {
@@ -530,10 +547,6 @@ export class Game {
 
       // Fun fact system
       this._updateFunFacts(dt);
-      // Dismiss fun fact on any key press
-      if (this._funFactActive && this.input.anyKeyPressed()) {
-        this.dismissFunFact();
-      }
     }
 
     this.input.resetFrame();

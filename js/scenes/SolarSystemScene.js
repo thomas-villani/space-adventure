@@ -380,7 +380,11 @@ export class SolarSystemScene {
         this.game.playTone(880, 0.2);
         // Skip asteroid minigame for the Sun and special destinations
         if (nearest.data.type === 'star' || nearest.data.skipAsteroid) {
-          this.game.setState(GameState.ORBIT, { planet: nearest.data });
+          if (nearest.data.miniGame) {
+            this.game.setState(GameState.MINI_GAME, { planet: nearest.data });
+          } else {
+            this.game.setState(GameState.ORBIT, { planet: nearest.data });
+          }
         } else {
           this.game.setState(GameState.ASTEROID, { planet: nearest.data });
         }

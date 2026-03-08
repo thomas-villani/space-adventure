@@ -289,7 +289,12 @@ export class AsteroidScene {
       this.game._justFinishedAsteroid = false;
 
       this.game.playMelody([[523, 0.12], [659, 0.12], [784, 0.2]]);
-      this.game.setState(GameState.ORBIT, { planet: this.planetData });
+      // Route to mini-game if destination has one, otherwise orbit
+      if (this.planetData?.miniGame) {
+        this.game.setState(GameState.MINI_GAME, { planet: this.planetData });
+      } else {
+        this.game.setState(GameState.ORBIT, { planet: this.planetData });
+      }
     }
   }
 

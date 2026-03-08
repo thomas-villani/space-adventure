@@ -228,6 +228,38 @@ kbd {
   white-space: nowrap;
 }
 
+/* Mini-game HUD */
+#minigame-hud {
+  top: 15px; left: 15px; right: 15px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+#minigame-title {
+  font-size: 1.4rem;
+  color: #FFD700;
+  white-space: nowrap;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+#minigame-progress-bar {
+  flex: 1;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  border: 2px solid #FFD700;
+  overflow: hidden;
+}
+
+#minigame-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #FFD700, #FF8800);
+  border-radius: 8px;
+  transition: width 0.3s;
+}
+
 /* Score popup */
 #score-popup {
   top: 50%;
