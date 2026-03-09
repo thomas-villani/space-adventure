@@ -152,7 +152,7 @@ export class SolarSystemScene {
 
     // Wormholes — bidirectional portal pair
     const outerAngle = Math.PI * 0.7;
-    const innerAngle = Math.PI * 1.8;
+    const innerAngle = Math.PI * 1.2;
     this.wormholeOuter = new Wormhole(
       new THREE.Vector3(Math.cos(outerAngle) * 475, 0, Math.sin(outerAngle) * 475),
       'outer',

@@ -7,13 +7,17 @@ const SKINS = {
     title: 'Geyser Ride!',
     geyserColor: 0x88DDFF,
     crystalColors: [0x00FFFF, 0xFF88FF, 0xFFD700, 0x44FF44],
-    speak: 'Ride the geyser!',
+    speak: 'Ride the geyser up! Steer left and right to collect crystals!',
+    intro: 'Ride the geyser! Steer with arrow keys!',
+    cliff: false,
   },
   miranda: {
-    title: 'Cliff Launch!',
+    title: 'Cliff Ride!',
     geyserColor: 0xAABBCC,
     crystalColors: [0xFF4488, 0x44AAFF, 0xFFDD00, 0x44FF88],
-    speak: 'Fly up the cliff!',
+    speak: 'Fly up Miranda\'s giant cliff! Steer left and right to collect crystals!',
+    intro: 'Fly up the cliff! Steer with arrow keys!',
+    cliff: true,
   },
 };
 
@@ -67,10 +71,12 @@ export class GeyserRideScene {
     this.done = false;
     this.height = 0;
     this.riseSpeed = 8;
+    this.readyDelay = 2.0;
 
     // Clean up old objects
     for (const c of (this._oldCrystals || [])) this.scene.remove(c.mesh);
     if (this._geyserParticles) this.scene.remove(this._geyserParticles);
+    if (this._cliffGroup) { this.scene.remove(this._cliffGroup); this._cliffGroup = null; }
     this._oldCrystals = [];
 
     // Ship
@@ -112,9 +118,35 @@ export class GeyserRideScene {
       this._crystals.push({ mesh, color, collected: false, baseX: x });
     }
 
+    // Cliff wall for Miranda
+    if (this.skin.cliff) {
+      const totalHeight = this.riseSpeed * this.duration;
+      this._cliffGroup = new THREE.Group();
+      // Main cliff face
+      const cliffGeo = new THREE.BoxGeometry(5, totalHeight + 30, 3);
+      const cliffMat = new THREE.MeshStandardMaterial({ color: 0x776655, roughness: 0.9 });
+      const cliff = new THREE.Mesh(cliffGeo, cliffMat);
+      cliff.position.set(-10.5, totalHeight / 2, -1);
+      this._cliffGroup.add(cliff);
+      // Rocky ledges for visual interest
+      for (let i = 0; i < 20; i++) {
+        const ledgeGeo = new THREE.BoxGeometry(1.5 + Math.random() * 2, 0.6 + Math.random() * 0.8, 1.5 + Math.random() * 2);
+        const shade = 0.35 + Math.random() * 0.15;
+        const ledgeMat = new THREE.MeshStandardMaterial({
+          color: new THREE.Color(shade, shade * 0.9, shade * 0.75),
+          roughness: 1.0,
+        });
+        const ledge = new THREE.Mesh(ledgeGeo, ledgeMat);
+        ledge.position.set(-8 - Math.random() * 1.5, (i / 20) * totalHeight + Math.random() * 10, -0.5 + Math.random());
+        this._cliffGroup.add(ledge);
+      }
+      this.scene.add(this._cliffGroup);
+    }
+
     this.game.ui.showMiniGameHUD(this.skin.title);
     this.game.ui.updateMiniGameProgress(0);
     this.game.tts.speak(this.skin.speak);
+    this.game.ui.showScorePopup(0, this.skin.intro);
   }
 
   exit() {
@@ -122,9 +154,16 @@ export class GeyserRideScene {
     for (const c of this._crystals) this.scene.remove(c.mesh);
     this._oldCrystals = this._crystals;
     this._crystals = [];
+    if (this._cliffGroup) { this.scene.remove(this._cliffGroup); this._cliffGroup = null; }
   }
 
   update(dt) {
+    // Intro phase — show instructions before gameplay starts
+    if (this.readyDelay > 0) {
+      this.readyDelay -= dt;
+      return;
+    }
+
     this.timer += dt;
     const progress = Math.min(this.timer / this.duration, 1);
     this.game.ui.updateMiniGameProgress(progress);
@@ -176,8 +215,9 @@ export class GeyserRideScene {
     // Done
     if (this.timer >= this.duration && !this.done) {
       this.done = true;
+      const totalPoints = this.collected * 2;
       const msg = this.collected >= 12 ? 'Amazing ride!' : 'Great flying!';
-      this.game.ui.showScorePopup(0, msg);
+      this.game.ui.showScorePopup(totalPoints, msg);
       this.game.tts.speak(msg);
       this.game.playMelody([[523, 0.12], [659, 0.12], [784, 0.2]]);
       setTimeout(() => {

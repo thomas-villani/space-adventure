@@ -49,6 +49,7 @@ export class MiningScene {
     this.done = false;
     this.fireTimer = 0.5;
     this.fireCooldown = 0.3;
+    this.readyDelay = 2.0;
 
     // Clean up old objects
     for (const r of (this._rocks || [])) this.scene.remove(r.group);
@@ -81,7 +82,8 @@ export class MiningScene {
 
     this.game.ui.showMiniGameHUD('Asteroid Mining!');
     this.game.ui.updateMiniGameProgress(0);
-    this.game.tts.speak('Mine the asteroids!');
+    this.game.tts.speak('Shoot the asteroids to mine crystals! Use arrows to move, Space to fire!');
+    this.game.ui.showScorePopup(0, 'Shoot asteroids! Arrows + Space to fire!');
   }
 
   exit() {
@@ -89,6 +91,12 @@ export class MiningScene {
   }
 
   update(dt) {
+    // Intro phase — show instructions before gameplay starts
+    if (this.readyDelay > 0) {
+      this.readyDelay -= dt;
+      return;
+    }
+
     this.timer += dt;
     const progress = Math.min(this.timer / this.duration, 1);
     this.game.ui.updateMiniGameProgress(progress);
@@ -197,8 +205,9 @@ export class MiningScene {
     // Done
     if (this.timer >= this.duration && !this.done) {
       this.done = true;
+      const totalPoints = this.mined * 3;
       const msg = this.mined >= 5 ? 'Master miner!' : 'Nice mining!';
-      this.game.ui.showScorePopup(0, msg);
+      this.game.ui.showScorePopup(totalPoints, msg);
       this.game.tts.speak(msg);
       this.game.playMelody([[523, 0.12], [659, 0.12], [784, 0.2]]);
       setTimeout(() => {

@@ -414,8 +414,8 @@ export class Game {
       this.ui.hideSaveScreen();
       if (this.paused) this.ui.showPause(true);
     } else {
-      // Only while paused in solar system
-      if (!this.paused || this.state !== GameState.SOLAR_SYSTEM) return;
+      // Only while paused
+      if (!this.paused) return;
       this.saveMenuOpen = true;
       this.ui.showPause(false);
       this.ui.showSaveScreen(this.storage.getSaves());
@@ -429,9 +429,9 @@ export class Game {
       this.ui.hideLoadScreen();
       if (this.paused) this.ui.showPause(true);
     } else {
-      // Allow from menu or while paused in solar system
+      // Allow from menu or while paused
       const fromMenu = this.state === GameState.MENU;
-      const fromPause = this.paused && this.state === GameState.SOLAR_SYSTEM;
+      const fromPause = this.paused;
       if (!fromMenu && !fromPause) return;
       const saves = this.storage.getSaves();
       if (saves.length === 0) {
@@ -579,16 +579,16 @@ export class Game {
       }
     }
 
-    // Save menu (S key while paused in solar system)
+    // Save menu (S key while paused)
     if (this.input.wasPressed('KeyS') && !this.journalOpen && !this.missionOpen && !this.photoModeOpen && !this.galleryOpen) {
-      if (this.saveMenuOpen || (this.paused && this.state === GameState.SOLAR_SYSTEM)) {
+      if (this.saveMenuOpen || this.paused) {
         this.toggleSaveMenu();
       }
     }
 
     // Load menu (L key — from menu or while paused)
     if (this.input.wasPressed('KeyL') && !this.loadMenuOpen && !this.journalOpen && !this.missionOpen && !this.photoModeOpen && !this.galleryOpen && !this.saveMenuOpen && !this.confirmOpen) {
-      if (this.state === GameState.MENU || (this.paused && this.state === GameState.SOLAR_SYSTEM)) {
+      if (this.state === GameState.MENU || this.paused) {
         this.toggleLoadMenu();
         this.input.resetFrame();
         return;
