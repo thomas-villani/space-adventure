@@ -175,20 +175,74 @@ Pre-generated audio using OpenAI's `gpt-4o-mini-tts` API with the **Shimmer** vo
 
 ---
 
-## 7. Other Quality-of-Life Ideas (Future)
+## 7. New Destinations
 
-These are good ideas but lower priority. Capture here for later.
+### Saturn Moons
+- **Mimas** — giant crater makes it look like the Death Star. Visually striking. Mini-game: moon-bounce.
+- **Iapetus** — one half bright white, the other jet black. "Two-face" moon. Unique half-and-half 3D model.
+
+### More Uranus/Neptune Moons
+- **Titania** — largest Uranus moon, huge canyons. Mini-game: ice-cracker.
+- **Oberon** — dark, mysterious, cratered. Mini-game: mining.
+
+### Spacecraft Encounters (bonus destinations)
+- **James Webb Space Telescope** — orbiting at L2. Could show mirror segments unfolding or just cool facts about seeing the oldest light in the universe.
+- **Perseverance Rover** — on Mars's surface. A "visit the rover" branch off Mars. Mini-game: help the rover collect rock samples.
+- **Cassini** (memorial) — near Saturn. Tribute to the spacecraft that dove into Saturn's atmosphere.
+
+### Other
+- **Asteroid Bennu** — near asteroid belt. OSIRIS-REx grabbed a sample. Mini-game: sample collection.
+
+---
+
+## 8. New Activities & Systems
+
+### Ship Customization
+- Pick ship color/shape at game start or from pause menu
+- Add stickers/decals (procedural shapes)
+- Name your ship
+- Unlock new ship parts by completing missions
+- Kids love personalizing — high engagement feature
+
+### Creature Collection ("Space Zoo")
+- Friendly alien creatures found at specific destinations
+- Purely cosmetic collectibles — "Space Zoo" page in the journal
+- Each creature has a silly name and fun description
+- Kids love collecting things
+
+### Space Races
+- Timed point-to-point courses (e.g., "Earth to Mars dash")
+- Ghost trail shows the path with waypoint markers
+- Non-competitive — you always "win" but get bonus points for collecting stars along the route
+- Reuses the solar system scene
+
+### Constellation Finder
+- When near Earth, a mini-game connecting stars to form constellations (Big Dipper, Orion)
+- Arrow between stars, press Enter to connect
+- Educational + satisfying line-drawing feel
+
+### Gravity Slingshot
+- Mini-game where you aim your ship to swing around a planet using its gravity
+- Simple trajectory preview line, press Enter to launch
+- Watch the ship curve around — teaches real space navigation concepts
+
+### Space Weather Events
+- Random events during solar system flight (low effort, high delight):
+  - **Solar flare** — golden particle wave from the Sun
+  - **Meteor shower** — sparkles across the screen, collect them for bonus points
+  - **Aurora near Earth** — green/purple shimmer effect
+
+---
+
+## 9. Quality-of-Life (Future)
 
 - **Minimap/radar** — small 2D overhead view showing planet positions relative to the ship. Huge help for navigation, especially in the sparse outer solar system.
 - **Autopilot/waypoint** — select a destination from the journal and the ship steers toward it. Essential for the youngest players (3-4) who can't navigate well.
 - **Difficulty settings** — "Explorer mode" (no asteroids, just fly and learn) vs "Adventurer mode" (current). Lets younger kids enjoy without minigame pressure.
-- **Ship customization** — pick ship color/shape at game start. Kids love personalizing.
 - **Background music** — procedural ambient music via Web Audio. Warm tones near Sun, eerie near Neptune, playful near Earth.
 - **Animated moons** — moons slowly orbit their parent planets instead of sitting still.
-- **Constellation outlines** — connect background stars to show real constellations.
 - **Scale comparison** — a "how big?" screen that lines up planets side-by-side.
 - **Multiple pilot profiles** — siblings get separate saves with their own name/progress.
-- **Solar flare events** — occasional golden particle wave from the Sun. Purely visual.
 - **Alien radio signal** — strange tones as you approach Voyager. Mystery element.
 - ~~**Better TTS voice-overs**~~ — DONE (OpenAI gpt-4o-mini-tts Shimmer voice, 274 pre-generated .wav files)
 
@@ -205,14 +259,18 @@ These are good ideas but lower priority. Capture here for later.
 | 5 | Mission System | DONE (15 missions: routes, collections, deliveries, discoveries) |
 | 6 | Photo Mode & Postcards | DONE |
 | 7 | Pre-generated TTS Audio | DONE (274 .wav files, OpenAI Shimmer voice) |
-| 8 | Minimap / Autopilot | TODO |
+| 8 | New Destinations | TODO (Mimas, Iapetus, Titania, Oberon, JWST, Perseverance, Cassini, Bennu) |
+| 9 | Ship Customization | TODO |
+| 10 | Creature Collection | TODO |
+| 11 | Space Weather Events | TODO |
+| 12 | Minimap / Autopilot | TODO |
 
-## Priority Order (Suggested)
+## Priority Order (Next Up)
 
-1. **TTS** — high impact, low effort, transforms accessibility for pre-readers
-2. **"Did You Know?" facts** — low effort, adds life to exploration downtime
-3. **Wormhole** — moderate effort, big fun factor, solves navigation pain
-4. **Planet mini-games** — high effort but the kids' favorite feature request (start with 2-3)
-5. **Mission system** — moderate effort, adds replayability and structure
-6. **Photo mode & postcards** — moderate effort, unique and memorable
-7. **Minimap / autopilot** — important for youngest players
+1. **Ship customization** — kids ask for this constantly, high engagement
+2. **Mimas + Iapetus** — visually distinctive moons, reuse existing mini-games
+3. **Space weather events** — low effort, adds life and surprise
+4. **Creature collection** — high engagement for the collecting instinct
+5. **Minimap / autopilot** — important for youngest players
+6. **Constellation finder** — educational mini-game, ties to Earth visits
+7. **More destinations** — JWST, Perseverance, Bennu, etc.

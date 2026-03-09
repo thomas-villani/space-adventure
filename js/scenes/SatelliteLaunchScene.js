@@ -169,11 +169,12 @@ export class SatelliteLaunchScene {
     const actionPressed = input.wasPressed('Space') || input.wasPressed('Enter');
 
     if (this.phase === 'aiming') {
-      // Arrow rotates back and forth
-      this.angle += this.angleDir * dt * 2.5;
-      if (this.angle > Math.PI * 0.45) { this.angle = Math.PI * 0.45; this.angleDir = -1; }
-      if (this.angle < -Math.PI * 0.45) { this.angle = -Math.PI * 0.45; this.angleDir = 1; }
-      this._arrow.rotation.z = this.angle;
+      // Arrow rotates back and forth (slow for kids)
+      this.angle += this.angleDir * dt * 1.4;
+      if (this.angle > Math.PI * 0.4) { this.angle = Math.PI * 0.4; this.angleDir = -1; }
+      if (this.angle < -Math.PI * 0.4) { this.angle = -Math.PI * 0.4; this.angleDir = 1; }
+      // Negate so arrow tip visually matches the launch direction
+      this._arrow.rotation.z = -this.angle;
       this._arrow.visible = true;
       this._powerBar.visible = false;
       this._powerFill.visible = false;
@@ -187,8 +188,8 @@ export class SatelliteLaunchScene {
         this.game.playTone(500, 0.08, 'sine', 0.05);
       }
     } else if (this.phase === 'powering') {
-      // Power bar fills up and down
-      this.power += this.powerDir * dt * 1.8;
+      // Power bar fills up and down (slow for kids)
+      this.power += this.powerDir * dt * 1.0;
       if (this.power > 1) { this.power = 1; this.powerDir = -1; }
       if (this.power < 0) { this.power = 0; this.powerDir = 1; }
 
@@ -218,10 +219,10 @@ export class SatelliteLaunchScene {
       // Animate satellite
       const sat = this._satellites[this._satellites.length - 1];
       if (sat && !sat.done) {
-        sat.vel.y -= 3 * dt; // gravity toward planet
+        sat.vel.y -= 2 * dt; // gentle gravity toward planet
         // Sideways pull for orbit
         const toCenter = new THREE.Vector3().sub(sat.mesh.position).normalize();
-        sat.vel.add(toCenter.multiplyScalar(4 * dt));
+        sat.vel.add(toCenter.multiplyScalar(3 * dt));
         sat.mesh.position.add(sat.vel.clone().multiplyScalar(dt));
         sat.mesh.rotation.z += dt * 2;
         sat.flightTime += dt;
@@ -230,7 +231,7 @@ export class SatelliteLaunchScene {
 
         // Check orbit success (close to orbit ring radius of 7)
         if (sat.flightTime > 0.5) {
-          if (distFromCenter >= 5.5 && distFromCenter <= 8.5 && sat.flightTime > 1) {
+          if (distFromCenter >= 4.5 && distFromCenter <= 10 && sat.flightTime > 0.8) {
             // Good orbit!
             sat.done = true;
             this.successes++;
@@ -239,14 +240,14 @@ export class SatelliteLaunchScene {
             this.game.particles.sparkle(sat.mesh.position.clone(), 0x44FF88);
             this.game.playTone(1000, 0.15, 'sine', 0.08);
             this._resetToAiming();
-          } else if (distFromCenter < 3.5) {
+          } else if (distFromCenter < 3.2) {
             // Crashed into planet — close attempt
             sat.done = true;
             this.game.addScore(3);
             this.game.ui.showScorePopup(3, 'Close try!');
             this.game.playTone(300, 0.1, 'sine', 0.05);
             this._resetToAiming();
-          } else if (distFromCenter > 14 || sat.flightTime > 4) {
+          } else if (distFromCenter > 15 || sat.flightTime > 5) {
             // Flew too far — still get points for launching
             sat.done = true;
             this.game.addScore(2);
@@ -310,7 +311,7 @@ export class SatelliteLaunchScene {
     mesh.position.set(0, -4.5, 0);
 
     // Launch velocity based on angle and power
-    const speed = 6 + this.power * 10;
+    const speed = 8 + this.power * 6;
     const vel = new THREE.Vector3(
       Math.sin(this.angle) * speed,
       Math.cos(this.angle) * speed,
@@ -337,7 +338,7 @@ export class SatelliteLaunchScene {
     const lastSat = this._satellites[this._satellites.length - 1];
     if (lastSat && lastSat.done) {
       const dist = lastSat.mesh.position.length();
-      if (dist >= 5.5 && dist <= 8.5) {
+      if (dist >= 4.5 && dist <= 10) {
         lastSat.orbiting = true;
         lastSat.orbitAngle = Math.atan2(lastSat.mesh.position.y, lastSat.mesh.position.x);
       }
