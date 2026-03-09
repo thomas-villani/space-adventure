@@ -114,6 +114,7 @@ export class UIManager {
     if (this.missionHud) this.missionHud.classList.add('hidden');
     if (this.photoHud) this.photoHud.classList.add('hidden');
     if (this.galleryScreen) this.galleryScreen.classList.add('hidden');
+    if (this._lightbox) this._lightbox.classList.add('hidden');
     if (this.postcardPrompt) this.postcardPrompt.classList.add('hidden');
     this.hideFunFact();
 
@@ -306,7 +307,7 @@ export class UIManager {
           entry.facts.map(f => `<p>${f}</p>`).join('');
       } else {
         card.className = 'journal-card locked';
-        card.innerHTML = `<h4>???</h4><p>Not yet explored</p>`;
+        card.innerHTML = `<h4>${dest.name}</h4><p>Not yet explored</p>`;
       }
       this.journalGrid.appendChild(card);
     }
@@ -553,7 +554,7 @@ export class UIManager {
   showMissionBoard(missions, manager) {
     this.missionList.innerHTML = '';
     if (!missions || missions.length === 0) {
-      this.missionList.innerHTML = '<p class="mission-empty">All missions complete! Great exploring!</p>';
+      this.missionList.innerHTML = '<p class="mission-empty">No active missions right now.</p>';
     }
     for (const mission of missions) {
       const card = document.createElement('div');
@@ -578,6 +579,26 @@ export class UIManager {
         `<div class="mission-reward">Reward: +${mission.reward} points</div>`;
       this.missionList.appendChild(card);
     }
+
+    // Show completed missions
+    const completedMissions = manager.getCompletedMissions();
+    if (completedMissions.length > 0) {
+      const divider = document.createElement('h3');
+      divider.className = 'mission-section-title';
+      divider.textContent = `Completed (${completedMissions.length})`;
+      this.missionList.appendChild(divider);
+
+      for (const mission of completedMissions) {
+        const card = document.createElement('div');
+        card.className = 'mission-card completed';
+        card.innerHTML =
+          `<h4>\u2713 ${mission.name}</h4>` +
+          `<p>${mission.description}</p>` +
+          `<div class="mission-reward">+${mission.reward} points earned</div>`;
+        this.missionList.appendChild(card);
+      }
+    }
+
     this.missionScreen.classList.remove('hidden');
   }
 
@@ -651,9 +672,29 @@ export class UIManager {
     const cards = this.galleryGrid.querySelectorAll('.gallery-card');
     cards.forEach((c, i) => c.classList.toggle('selected', i === this._galleryIndex));
 
+    if (input.wasPressed('Enter') || input.wasPressed('Space')) return { action: 'view', item: this._galleryItems[this._galleryIndex] };
     if (input.wasPressed('KeyD')) return { action: 'download', item: this._galleryItems[this._galleryIndex] };
     if (input.wasPressed('Delete') || input.wasPressed('Backspace')) return { action: 'delete', item: this._galleryItems[this._galleryIndex] };
     return null;
+  }
+
+  // ── Gallery Lightbox ──
+  showLightbox(item) {
+    if (!this._lightbox) {
+      this._lightbox = document.getElementById('gallery-lightbox');
+      this._lightboxImg = this._lightbox?.querySelector('img');
+    }
+    if (!this._lightbox) return;
+    this._lightboxImg.src = item.dataUrl;
+    this._lightbox.classList.remove('hidden');
+  }
+
+  hideLightbox() {
+    if (this._lightbox) this._lightbox.classList.add('hidden');
+  }
+
+  get lightboxOpen() {
+    return this._lightbox && !this._lightbox.classList.contains('hidden');
   }
 
   // ── Postcard Prompt ──

@@ -3,7 +3,7 @@
 ## Design Principles
 - Keep it forgiving: no game-over, no punishment, always rewarding
 - Ages 3-6: simple controls, big visuals, read-aloud support
-- No build tools, no asset files: procedural everything (Three.js primitives, Web Audio, canvas textures, browser TTS)
+- No build tools: procedural visuals (Three.js primitives, Web Audio, canvas textures) with pre-generated TTS audio
 - Existing features to KEEP: asteroid blaster minigame, fact screens, quizzes, crystals, achievements, save/load
 
 ---
@@ -154,7 +154,7 @@ A hidden wormhole in the outer reaches of the solar system that teleports the sh
 
 ## 6. Text-to-Speech (TTS)
 
-Use the browser's built-in `SpeechSynthesis` API to read facts, planet names, quiz questions, and "Did You Know?" tips aloud.
+Pre-generated audio using OpenAI's `gpt-4o-mini-tts` API with the **Shimmer** voice. Falls back to browser `SpeechSynthesis` for any text without a pre-generated file.
 
 ### What Gets Read
 - Planet name when approaching ("You're near Jupiter!")
@@ -162,21 +162,16 @@ Use the browser's built-in `SpeechSynthesis` API to read facts, planet names, qu
 - Quiz questions (not the options — let kids read/discuss those)
 - "Did You Know?" pop-ups
 - Victory message
-- Postcard text
+- Mini-game intros and completion messages
+- Mission completion announcements
 
 ### Implementation
-- `js/systems/TTSManager.js` wrapping `window.speechSynthesis`
-- Methods: `speak(text)`, `stop()`, `setRate(speed)`, `setVoice(voice)`
-- Settings in pause menu: TTS on/off, speed (slow/normal), voice selection
-- Queue system: if something is being read, new speech waits or interrupts
-- Speak rate default: 0.85 (slightly slower than normal for young listeners)
-- Prefer voices with "child" or "female" in the name for friendliness (fall back to default)
-
-### Considerations
-- Not all browsers/OSes have the same voices — graceful fallback
-- Mobile browsers may require user gesture before first speech
-- Add a "Read Again" button on fact screens
-- Don't read during asteroid minigame (distracting)
+- 274 pre-generated `.wav` files in `audio/` (organized by category: planets, quizzes, visits, proximity, funfacts, missions, ui)
+- `audio/text-lookup.json` maps exact spoken text → audio file path
+- `js/systems/TTSManager.js` loads the lookup, plays `.wav` via HTML `Audio` API, caches loaded audio elements
+- Falls back to browser `SpeechSynthesis` if audio files unavailable
+- Regenerate audio: `uv run --with requests generate_audio.py`
+- Pronunciation fixes applied during generation: Makemake → "Mak-ee Mak-ee", blanks → "blank", Haumea → "How-may-ah"
 
 ---
 
@@ -195,7 +190,7 @@ These are good ideas but lower priority. Capture here for later.
 - **Multiple pilot profiles** — siblings get separate saves with their own name/progress.
 - **Solar flare events** — occasional golden particle wave from the Sun. Purely visual.
 - **Alien radio signal** — strange tones as you approach Voyager. Mystery element.
-- **Better TTS voice-overs** — Replace browser SpeechSynthesis with pre-generated .wav files from a higher-quality TTS API (e.g. ElevenLabs, OpenAI TTS, Google Cloud TTS). Pre-render all planet facts, quiz questions, fun facts, and UI prompts as audio files. Ship them as static assets so playback is instant, consistent across browsers, and sounds great for kids. Fallback to browser TTS if files aren't loaded.
+- ~~**Better TTS voice-overs**~~ — DONE (OpenAI gpt-4o-mini-tts Shimmer voice, 274 pre-generated .wav files)
 
 ---
 
@@ -209,7 +204,8 @@ These are good ideas but lower priority. Capture here for later.
 | 4 | Planet Mini-Games | DONE (7/7: Ring Catcher, Moon Bounce, Mining, Storm Surfer, Geyser Ride, Satellite Launch, Ice Cracker) |
 | 5 | Mission System | DONE (15 missions: routes, collections, deliveries, discoveries) |
 | 6 | Photo Mode & Postcards | DONE |
-| 7 | Minimap / Autopilot | TODO |
+| 7 | Pre-generated TTS Audio | DONE (274 .wav files, OpenAI Shimmer voice) |
+| 8 | Minimap / Autopilot | TODO |
 
 ## Priority Order (Suggested)
 

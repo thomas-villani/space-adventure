@@ -380,6 +380,7 @@ export class Game {
   toggleGallery() {
     if (this.galleryOpen) {
       this.galleryOpen = false;
+      this.ui.hideLightbox();
       this.ui.hideGallery();
       if (this.paused) this.ui.showPause(true);
     } else {
@@ -700,9 +701,25 @@ export class Game {
 
     // If gallery is open, handle navigation
     if (this.galleryOpen) {
+      // Lightbox mode — any key closes it
+      if (this.ui.lightboxOpen) {
+        if (this.input.anyKeyPressed()) {
+          this.ui.hideLightbox();
+          this.playTone(400, 0.06);
+        }
+        this.input.resetFrame();
+        const activeScene = this.scenes[this.state];
+        if (activeScene && activeScene.scene && activeScene.camera) {
+          this.renderer.render(activeScene.scene, activeScene.camera);
+        }
+        return;
+      }
       const result = this.ui.handleGalleryInput(this.input);
       if (result) {
-        if (result.action === 'download') {
+        if (result.action === 'view') {
+          this.ui.showLightbox(result.item);
+          this.playTone(600, 0.06);
+        } else if (result.action === 'download') {
           const item = result.item;
           const filename = item.galleryType === 'postcard'
             ? `postcard-${item.planet || 'space'}.jpg`

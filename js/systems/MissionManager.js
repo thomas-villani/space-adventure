@@ -111,6 +111,10 @@ export class MissionManager {
     }
   }
 
+  getCompletedMissions() {
+    return MISSIONS.filter(m => this.completed.has(m.id));
+  }
+
   // ── Save/Load ──
   getState() {
     return {
