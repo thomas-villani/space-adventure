@@ -259,15 +259,17 @@ Pre-generated audio using OpenAI's `gpt-4o-mini-tts` API with the **Shimmer** vo
 | 5 | Mission System | DONE (15 missions: routes, collections, deliveries, discoveries) |
 | 6 | Photo Mode & Postcards | DONE |
 | 7 | Pre-generated TTS Audio | DONE (274 .wav files, OpenAI Shimmer voice) |
-| 8 | New Destinations | TODO (Mimas, Iapetus, Titania, Oberon, JWST, Perseverance, Cassini, Bennu) |
-| 9 | Ship Customization | TODO |
+| 8 | Ship Customization | DONE (8 color presets, player name, saved to profile) |
+| 9 | New Destinations | TODO (Mimas, Iapetus, Titania, Oberon, JWST, Perseverance, Cassini, Bennu) |
 | 10 | Creature Collection | TODO |
 | 11 | Space Weather Events | TODO |
 | 12 | Minimap / Autopilot | TODO |
+| 13 | Gallery Lightbox Fix | DONE |
+| 14 | Player Name + High Score Board | DONE |
 
 ## Priority Order (Next Up)
 
-1. **Ship customization** — kids ask for this constantly, high engagement
+1. ~~**Ship customization**~~ — DONE
 2. **Mimas + Iapetus** — visually distinctive moons, reuse existing mini-games
 3. **Space weather events** — low effort, adds life and surprise
 4. **Creature collection** — high engagement for the collecting instinct

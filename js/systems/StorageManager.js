@@ -15,6 +15,12 @@ export class StorageManager {
     } catch { /* storage full or blocked */ }
   }
 
+  // ── Player Profile ──
+  getPlayerName() { return this.getJSON('player-name') || ''; }
+  setPlayerName(name) { this.setJSON('player-name', name); }
+  getShipStyle() { return this.getJSON('ship-style') ?? 0; }
+  setShipStyle(id) { this.setJSON('ship-style', id); }
+
   // ── High Scores ──
   getHighScores() {
     return this.getJSON('high-scores') || [];

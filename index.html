@@ -29,7 +29,18 @@
   <div id="menu-screen" class="overlay screen">
     <h1 class="title">Space Adventure!</h1>
     <p class="subtitle">Explore the Solar System!</p>
-    <p class="prompt blink">Press any key to start</p>
+    <div id="menu-setup">
+      <div class="setup-row">
+        <label for="pilot-name" class="setup-label">Pilot Name</label>
+        <input type="text" id="pilot-name" maxlength="15" placeholder="Space Explorer" autocomplete="off" />
+      </div>
+      <div class="setup-row">
+        <p class="setup-label">Your Ship</p>
+        <div id="ship-swatches"></div>
+        <p id="ship-style-name" class="ship-name"></p>
+      </div>
+    </div>
+    <p class="prompt blink">Press <kbd>Enter</kbd> to blast off!</p>
     <p class="prompt menu-hint">Press <kbd>L</kbd> to Load Game</p>
   </div>
 

@@ -178,7 +178,7 @@ export class LandingScene {
           const photoUrl = this.game._lastOrbitPhoto ||
             this.game.photos.capture(this.game.renderer, this.scene, this.camera);
           this.phase = Phase.COMPOSING;
-          this.game.photos.composePostcard(photoUrl, this.planetData, 'Space Explorer')
+          this.game.photos.composePostcard(photoUrl, this.planetData, this.game.playerName)
             .then(postcardUrl => {
               this.game.photos.savePostcard(postcardUrl, {
                 planet: this.planetData.name,

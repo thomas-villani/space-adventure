@@ -66,22 +66,23 @@ export class AsteroidScene {
     this.scene.add(dirLight);
 
     // Build ship (simplified version for this scene)
+    const sc = this.game.getShipColors();
     this.ship = new THREE.Group();
     const bodyGeo = new THREE.ConeGeometry(0.6, 2.5, 8);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4488FF, metalness: 0.5, roughness: 0.3 });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    this._bodyMat = new THREE.MeshStandardMaterial({ color: sc.body, metalness: 0.5, roughness: 0.3 });
+    const body = new THREE.Mesh(bodyGeo, this._bodyMat);
     body.rotation.x = -Math.PI / 2;
     this.ship.add(body);
 
     const wingGeo = new THREE.BoxGeometry(3, 0.1, 1);
-    const wingMat = new THREE.MeshStandardMaterial({ color: 0x3366DD });
-    const wings = new THREE.Mesh(wingGeo, wingMat);
+    this._wingMat = new THREE.MeshStandardMaterial({ color: sc.wings });
+    const wings = new THREE.Mesh(wingGeo, this._wingMat);
     wings.position.z = 0.5;
     this.ship.add(wings);
 
     const engineGeo = new THREE.SphereGeometry(0.3, 8, 8);
-    const engineMat = new THREE.MeshStandardMaterial({ color: 0xFF6600, emissive: 0xFF4400, emissiveIntensity: 2 });
-    this.engineGlow = new THREE.Mesh(engineGeo, engineMat);
+    this._engineMat = new THREE.MeshStandardMaterial({ color: sc.engine, emissive: sc.engine, emissiveIntensity: 2 });
+    this.engineGlow = new THREE.Mesh(engineGeo, this._engineMat);
     this.engineGlow.position.z = 1.3;
     this.ship.add(this.engineGlow);
 
@@ -103,6 +104,13 @@ export class AsteroidScene {
     this.destroyedCount = 0;
     this.wasHit = false;
     this.ship.position.set(0, 0, 0);
+
+    // Update ship colors in case player changed style
+    const sc = this.game.getShipColors();
+    this._bodyMat.color.setHex(sc.body);
+    this._wingMat.color.setHex(sc.wings);
+    this._engineMat.color.setHex(sc.engine);
+    this._engineMat.emissive.setHex(sc.engine);
 
     // Clear old asteroids and lasers
     for (const a of this.asteroids) this.scene.remove(a.mesh);

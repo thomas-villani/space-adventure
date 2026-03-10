@@ -21,6 +21,7 @@ import { PhotoManager } from './systems/PhotoManager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_MAP } from './data/achievements.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS } from './data/solarSystem.js';
 import { FUN_FACTS } from './data/funFacts.js';
+import { SHIP_STYLES } from './data/shipStyles.js';
 
 export const GameState = {
   MENU: 'MENU',
@@ -81,6 +82,10 @@ export class Game {
     // Audio context (lazy init on first user interaction)
     this.audioCtx = null;
 
+    // Player profile
+    this.playerName = this.storage.getPlayerName() || 'Space Explorer';
+    this.shipStyleId = this.storage.getShipStyle();
+
     // Scenes
     this.scenes = {
       [GameState.SOLAR_SYSTEM]: new SolarSystemScene(this),
@@ -114,6 +119,18 @@ export class Game {
 
     // Init menu scene (reuse solar system starfield)
     this.scenes[GameState.SOLAR_SYSTEM].init();
+
+    // Set menu defaults from saved preferences
+    this.ui.setMenuDefaults(
+      this.storage.getPlayerName(),
+      this.shipStyleId,
+    );
+
+    // Apply saved ship style
+    const ss = this.scenes[GameState.SOLAR_SYSTEM];
+    if (ss.ship && SHIP_STYLES[this.shipStyleId]) {
+      ss.ship.applyStyle(SHIP_STYLES[this.shipStyleId]);
+    }
 
     window.addEventListener('resize', () => this.onResize());
   }
@@ -178,6 +195,10 @@ export class Game {
       }
       if (newScene.enter) newScene.enter(data);
     }
+  }
+
+  getShipColors() {
+    return SHIP_STYLES[this.shipStyleId] || SHIP_STYLES[0];
   }
 
   addScore(points) {
@@ -487,6 +508,8 @@ export class Game {
       },
       achievements: this.storage.getAchievements(),
       missions: this.missions.getState(),
+      playerName: this.playerName,
+      shipStyleId: this.shipStyleId,
     });
     this._hasSaved = true;
     this.saveMenuOpen = false;
@@ -523,6 +546,14 @@ export class Game {
     // Restore missions
     this.missions.loadState(save.missions);
 
+    // Restore player profile
+    if (save.playerName) this.playerName = save.playerName;
+    if (save.shipStyleId != null) {
+      this.shipStyleId = save.shipStyleId;
+      this.storage.setShipStyle(this.shipStyleId);
+    }
+    if (save.playerName) this.storage.setPlayerName(save.playerName);
+
     // Enter solar system
     this.setState(GameState.SOLAR_SYSTEM);
 
@@ -536,6 +567,9 @@ export class Game {
         save.shipRotation.x, save.shipRotation.y,
         save.shipRotation.z, save.shipRotation.w,
       );
+    }
+    if (SHIP_STYLES[this.shipStyleId]) {
+      ss.ship.applyStyle(SHIP_STYLES[this.shipStyleId]);
     }
 
     this.playMelody([[523, 0.12], [659, 0.12], [784, 0.2]]);
@@ -778,8 +812,20 @@ export class Game {
         ss.camera.rotation.y += dt * 0.05;
         this.renderer.render(ss.scene, ss.camera);
       }
-      // Start game on any key EXCEPT L (reserved for Load) and Escape
-      if (this.input.anyKeyPressed() && !this.input.wasPressed('KeyL') && !this.input.wasPressed('Escape')) {
+      // Start game on Enter (not Space — Space is for typing in name)
+      if (this.input.wasPressed('Enter')) {
+        // Read menu choices (name + ship)
+        const choices = this.ui.getMenuChoices();
+        this.playerName = choices.playerName;
+        this.shipStyleId = choices.shipStyleId;
+        this.storage.setPlayerName(this.playerName);
+        this.storage.setShipStyle(this.shipStyleId);
+
+        // Apply ship style
+        if (ss.ship && SHIP_STYLES[this.shipStyleId]) {
+          ss.ship.applyStyle(SHIP_STYLES[this.shipStyleId]);
+        }
+
         this.initAudio();
         this.playMelody([[523, 0.15], [659, 0.15], [784, 0.2]]);
         this.setState(GameState.SOLAR_SYSTEM);

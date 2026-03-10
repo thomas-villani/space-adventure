@@ -60,15 +60,16 @@ export class MiningScene {
     this._crystals = [];
 
     // Ship
+    const sc = this.game.getShipColors();
     if (this._ship) this.scene.remove(this._ship);
     this._ship = new THREE.Group();
     const bodyGeo = new THREE.ConeGeometry(0.5, 2, 8);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4488FF, metalness: 0.5 });
+    const bodyMat = new THREE.MeshStandardMaterial({ color: sc.body, metalness: 0.5 });
     const body = new THREE.Mesh(bodyGeo, bodyMat);
     body.rotation.x = -Math.PI / 2;
     this._ship.add(body);
     const wingGeo = new THREE.BoxGeometry(2.5, 0.08, 0.8);
-    const wingMat = new THREE.MeshStandardMaterial({ color: 0x3366DD });
+    const wingMat = new THREE.MeshStandardMaterial({ color: sc.wings });
     const wings = new THREE.Mesh(wingGeo, wingMat);
     wings.position.z = 0.4;
     this._ship.add(wings);

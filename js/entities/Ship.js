@@ -15,41 +15,53 @@ export class Ship {
     this.verticalSpeed = 15;
     this.bankAngle = 0;
     this.particleEngine = particleEngine;
+    this.trailColor = 0xFF4400;
 
     // Body — a cone pointing forward (-Z)
     const bodyGeo = new THREE.ConeGeometry(0.6, 2.5, 8);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4488FF, metalness: 0.5, roughness: 0.3 });
-    const body = new THREE.Mesh(bodyGeo, bodyMat);
+    this.bodyMat = new THREE.MeshStandardMaterial({ color: 0x4488FF, metalness: 0.5, roughness: 0.3 });
+    const body = new THREE.Mesh(bodyGeo, this.bodyMat);
     body.rotation.x = -Math.PI / 2; // point forward
     this.group.add(body);
 
     // Cockpit — small sphere at front
     const cockpitGeo = new THREE.SphereGeometry(0.35, 8, 8);
-    const cockpitMat = new THREE.MeshStandardMaterial({ color: 0x88DDFF, metalness: 0.8, roughness: 0.1 });
-    const cockpit = new THREE.Mesh(cockpitGeo, cockpitMat);
+    this.cockpitMat = new THREE.MeshStandardMaterial({ color: 0x88DDFF, metalness: 0.8, roughness: 0.1 });
+    const cockpit = new THREE.Mesh(cockpitGeo, this.cockpitMat);
     cockpit.position.set(0, 0.15, -0.8);
     this.group.add(cockpit);
 
     // Wings
     const wingGeo = new THREE.BoxGeometry(3, 0.1, 1);
-    const wingMat = new THREE.MeshStandardMaterial({ color: 0x3366DD, metalness: 0.4, roughness: 0.4 });
-    const wings = new THREE.Mesh(wingGeo, wingMat);
+    this.wingMat = new THREE.MeshStandardMaterial({ color: 0x3366DD, metalness: 0.4, roughness: 0.4 });
+    const wings = new THREE.Mesh(wingGeo, this.wingMat);
     wings.position.set(0, 0, 0.5);
     this.group.add(wings);
 
     // Engine glow
     const engineGeo = new THREE.SphereGeometry(0.3, 8, 8);
-    const engineMat = new THREE.MeshStandardMaterial({
+    this.engineMat = new THREE.MeshStandardMaterial({
       color: 0xFF6600, emissive: 0xFF4400, emissiveIntensity: 2,
     });
-    this.engineGlow = new THREE.Mesh(engineGeo, engineMat);
+    this.engineGlow = new THREE.Mesh(engineGeo, this.engineMat);
     this.engineGlow.position.set(0, 0, 1.3);
     this.group.add(this.engineGlow);
 
     // Engine light
-    const engineLight = new THREE.PointLight(0xFF4400, 2, 8);
-    engineLight.position.set(0, 0, 1.5);
-    this.group.add(engineLight);
+    this.engineLight = new THREE.PointLight(0xFF4400, 2, 8);
+    this.engineLight.position.set(0, 0, 1.5);
+    this.group.add(this.engineLight);
+  }
+
+  applyStyle(style) {
+    if (!style) return;
+    this.bodyMat.color.setHex(style.body);
+    this.cockpitMat.color.setHex(style.cockpit);
+    this.wingMat.color.setHex(style.wings);
+    this.engineMat.color.setHex(style.engine);
+    this.engineMat.emissive.setHex(style.engine);
+    this.engineLight.color.setHex(style.engine);
+    this.trailColor = style.trail;
   }
 
   cycleSpeed() {
@@ -93,7 +105,7 @@ export class Ship {
       enginePos.applyMatrix4(this.group.matrixWorld);
       this.particleEngine.emit(enginePos, {
         count: 1,
-        color: 0xFF4400,
+        color: this.trailColor,
         size: 0.15,
         life: 0.4,
         speed: 2,

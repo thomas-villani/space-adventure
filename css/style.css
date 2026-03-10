@@ -329,6 +329,88 @@ kbd {
   margin: 1rem 0;
 }
 
+/* ── Menu Setup ── */
+#menu-setup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.setup-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.setup-label {
+  font-size: 1.1rem;
+  color: #87CEEB;
+  margin: 0;
+}
+
+#pilot-name {
+  display: block;
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.6rem;
+  text-align: center;
+  background: rgba(100, 100, 255, 0.2);
+  border: 2px solid #87CEEB;
+  border-radius: 10px;
+  color: #FFF;
+  padding: 8px 16px;
+  width: 280px;
+  max-width: 80vw;
+  outline: none;
+  pointer-events: auto;
+}
+
+#pilot-name:focus {
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.15);
+}
+
+#pilot-name::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+#ship-swatches {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.ship-swatch {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.ship-swatch:hover {
+  transform: scale(1.15);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.ship-swatch.selected {
+  border-color: #FFD700;
+  box-shadow: 0 0 12px rgba(255, 215, 0, 0.5), inset 0 0 8px rgba(255, 255, 255, 0.3);
+  transform: scale(1.15);
+}
+
+.ship-name {
+  font-size: 1rem;
+  color: #FFD700;
+  margin: 0;
+  min-height: 1.4em;
+}
+
 /* ── Menu hint ── */
 .menu-hint {
   font-size: 1rem;
@@ -904,11 +986,13 @@ kbd {
 
 /* ── Gallery Lightbox ── */
 #gallery-lightbox {
+  top: 0; left: 0; right: 0; bottom: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   background: rgba(0, 0, 0, 0.92);
+  pointer-events: auto;
   z-index: 200;
 }
 

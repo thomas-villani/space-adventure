@@ -1,6 +1,7 @@
 import { GameState } from '../game.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS, DESTINATION_MAP } from '../data/solarSystem.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
+import { SHIP_STYLES } from '../data/shipStyles.js';
 
 export class UIManager {
   constructor() {
@@ -87,6 +88,54 @@ export class UIManager {
     this.postcardPrompt = document.getElementById('postcard-prompt');
     this._galleryItems = [];
     this._galleryIndex = 0;
+
+    // Ship picker
+    this.pilotNameInput = document.getElementById('pilot-name');
+    this.shipSwatches = document.getElementById('ship-swatches');
+    this.shipStyleName = document.getElementById('ship-style-name');
+    this._selectedShipStyle = 0;
+    this._initShipPicker();
+  }
+
+  _initShipPicker() {
+    if (!this.shipSwatches) return;
+    this.shipSwatches.innerHTML = '';
+    SHIP_STYLES.forEach((style, i) => {
+      const swatch = document.createElement('button');
+      swatch.className = 'ship-swatch' + (i === 0 ? ' selected' : '');
+      swatch.style.background = '#' + style.body.toString(16).padStart(6, '0');
+      swatch.title = style.name;
+      swatch.addEventListener('click', () => this.selectShipStyle(i));
+      this.shipSwatches.appendChild(swatch);
+    });
+    this._updateShipStyleName();
+  }
+
+  selectShipStyle(index) {
+    this._selectedShipStyle = index;
+    const swatches = this.shipSwatches.querySelectorAll('.ship-swatch');
+    swatches.forEach((s, i) => s.classList.toggle('selected', i === index));
+    this._updateShipStyleName();
+  }
+
+  _updateShipStyleName() {
+    if (this.shipStyleName) {
+      this.shipStyleName.textContent = SHIP_STYLES[this._selectedShipStyle].name;
+    }
+  }
+
+  getMenuChoices() {
+    const name = this.pilotNameInput?.value.trim() || 'Space Explorer';
+    return { playerName: name, shipStyleId: this._selectedShipStyle };
+  }
+
+  setMenuDefaults(playerName, shipStyleId) {
+    if (this.pilotNameInput && playerName) {
+      this.pilotNameInput.value = playerName;
+    }
+    if (shipStyleId >= 0 && shipStyleId < SHIP_STYLES.length) {
+      this.selectShipStyle(shipStyleId);
+    }
   }
 
   showMenu() {
@@ -358,10 +407,10 @@ export class UIManager {
   }
 
   // ── High Score Entry (full name text input) ──
-  showHighScoreEntry(onComplete) {
+  showHighScoreEntry(onComplete, defaultName = '') {
     this.highScoreEntry.classList.remove('hidden');
     const input = document.getElementById('hs-name-input');
-    input.value = '';
+    input.value = defaultName;
     // Brief delay so the Enter press that triggered this doesn't immediately submit
     setTimeout(() => {
       input.focus();
@@ -390,11 +439,18 @@ export class UIManager {
   // ── High Score Table ──
   showHighScoreTable(scores, currentScore) {
     this.hsList.innerHTML = '';
-    for (const entry of scores) {
+    if (scores.length === 0) {
       const li = document.createElement('li');
-      li.textContent = `${entry.name} — ${entry.score}`;
-      if (entry.score === currentScore) li.classList.add('current');
+      li.textContent = 'No high scores yet!';
+      li.style.color = '#888';
       this.hsList.appendChild(li);
+    } else {
+      for (const entry of scores) {
+        const li = document.createElement('li');
+        li.textContent = `${entry.name} — ${entry.score}`;
+        if (entry.score === currentScore) li.classList.add('current');
+        this.hsList.appendChild(li);
+      }
     }
     this.highScoreTable.classList.remove('hidden');
   }

@@ -69,6 +69,11 @@ export class VictoryScene {
     if (this.game.storage.isHighScore(score)) {
       this.phase = 'highscore_entry';
       this.game.ui.showHighScoreEntry((name) => {
+        // Also update the stored player name if they changed it
+        if (name && name !== 'ACE') {
+          this.game.playerName = name;
+          this.game.storage.setPlayerName(name);
+        }
         const scores = this.game.storage.addHighScore(name, score);
         this.phase = 'highscore_table';
         this.game.ui.showHighScoreTable(scores, score);
@@ -78,14 +83,12 @@ export class VictoryScene {
           this.game.ui.showVictoryPrompt();
           // Small delay before accepting input to prevent accidental restart
           setTimeout(() => { this._readyForInput = true; }, 500);
-        }, 1000);
-      });
+        }, 2000);
+      }, this.game.playerName);
     } else {
-      // No high score — just show the table
+      // Not a high score — still show the table
       const scores = this.game.storage.getHighScores();
-      if (scores.length > 0) {
-        this.game.ui.showHighScoreTable(scores, -1);
-      }
+      this.game.ui.showHighScoreTable(scores, -1);
       this.phase = 'done';
       this.game.ui.showVictoryPrompt();
       setTimeout(() => { this._readyForInput = true; }, 500);
@@ -100,7 +103,11 @@ export class VictoryScene {
       }
     }
     this.fireworks = [];
+    // Hide all victory sub-elements so they're clean for next time
     this.game.ui.hideHighScoreEntry();
+    this.game.ui.highScoreTable.classList.add('hidden');
+    this.game.ui.badgeGrid.classList.add('hidden');
+    this.game.ui.victoryPrompt.classList.add('hidden');
   }
 
   update(dt) {
@@ -146,7 +153,9 @@ export class VictoryScene {
       this.game.wormholeUsed = false;
       this.game._hasSaved = false;
       this.game.storage.clearJournal();
-      this.game.setState(GameState.SOLAR_SYSTEM);
+      // Go back to menu so player can change name/ship
+      this.game.ui.setMenuDefaults(this.game.playerName, this.game.shipStyleId);
+      this.game.setState(GameState.MENU);
     }
   }
 

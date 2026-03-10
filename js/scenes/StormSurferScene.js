@@ -113,14 +113,15 @@ export class StormSurferScene {
     this.scene.add(this._planet);
 
     // Ship
+    const sc = this.game.getShipColors();
     if (this._ship) this.scene.remove(this._ship);
     this._ship = new THREE.Group();
     const bodyGeo = new THREE.ConeGeometry(0.5, 1.8, 8);
-    const bodyMat = new THREE.MeshStandardMaterial({ color: 0x4488FF, metalness: 0.5 });
+    const bodyMat = new THREE.MeshStandardMaterial({ color: sc.body, metalness: 0.5 });
     const body = new THREE.Mesh(bodyGeo, bodyMat);
     this._ship.add(body);
     const wingGeo = new THREE.BoxGeometry(2.2, 0.08, 0.7);
-    const wingMat = new THREE.MeshStandardMaterial({ color: 0x3366DD });
+    const wingMat = new THREE.MeshStandardMaterial({ color: sc.wings });
     const wings = new THREE.Mesh(wingGeo, wingMat);
     wings.position.y = -0.3;
     this._ship.add(wings);
