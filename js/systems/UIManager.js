@@ -545,6 +545,13 @@ export class UIManager {
     this.victoryPrompt.classList.remove('hidden');
   }
 
+  hideVictoryOverlays() {
+    this.highScoreEntry.classList.add('hidden');
+    this.highScoreTable.classList.add('hidden');
+    this.badgeGrid.classList.add('hidden');
+    this.victoryPrompt.classList.add('hidden');
+  }
+
   // ── Confirm Dialog ──
   showConfirm(message, onYes, onNo) {
     this._confirmYes = onYes;

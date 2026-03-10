@@ -103,11 +103,7 @@ export class VictoryScene {
       }
     }
     this.fireworks = [];
-    // Hide all victory sub-elements so they're clean for next time
-    this.game.ui.hideHighScoreEntry();
-    this.game.ui.highScoreTable.classList.add('hidden');
-    this.game.ui.badgeGrid.classList.add('hidden');
-    this.game.ui.victoryPrompt.classList.add('hidden');
+    this.game.ui.hideVictoryOverlays();
   }
 
   update(dt) {

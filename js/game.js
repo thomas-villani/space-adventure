@@ -121,10 +121,7 @@ export class Game {
     this.scenes[GameState.SOLAR_SYSTEM].init();
 
     // Set menu defaults from saved preferences
-    this.ui.setMenuDefaults(
-      this.storage.getPlayerName(),
-      this.shipStyleId,
-    );
+    this.ui.setMenuDefaults(this.playerName, this.shipStyleId);
 
     // Apply saved ship style
     const ss = this.scenes[GameState.SOLAR_SYSTEM];
@@ -547,12 +544,14 @@ export class Game {
     this.missions.loadState(save.missions);
 
     // Restore player profile
-    if (save.playerName) this.playerName = save.playerName;
+    if (save.playerName) {
+      this.playerName = save.playerName;
+      this.storage.setPlayerName(save.playerName);
+    }
     if (save.shipStyleId != null) {
       this.shipStyleId = save.shipStyleId;
       this.storage.setShipStyle(this.shipStyleId);
     }
-    if (save.playerName) this.storage.setPlayerName(save.playerName);
 
     // Enter solar system
     this.setState(GameState.SOLAR_SYSTEM);
