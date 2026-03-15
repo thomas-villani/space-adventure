@@ -79,6 +79,9 @@ export class Game {
     this._shownFacts = new Set();
     this._funFactActive = false;
 
+    // Auto-save debounce
+    this._autoSaveTimeout = null;
+
     // Audio context (lazy init on first user interaction)
     this.audioCtx = null;
 
@@ -130,6 +133,8 @@ export class Game {
     }
 
     window.addEventListener('resize', () => this.onResize());
+    window.addEventListener('beforeunload', () => this._flushAutoSave());
+    this._setupButtons();
   }
 
   initAudio() {
@@ -192,6 +197,15 @@ export class Game {
       }
       if (newScene.enter) newScene.enter(data);
     }
+
+    // Auto-save when returning to solar system (after planet visit, etc.)
+    if (newState === GameState.SOLAR_SYSTEM) {
+      this.autoSave();
+    }
+    // Clear auto-save on victory (game complete)
+    if (newState === GameState.VICTORY) {
+      this.storage.clearAutoSave();
+    }
   }
 
   getShipColors() {
@@ -203,6 +217,7 @@ export class Game {
     this.ui.updateScore(this.score);
     // Check score achievements
     if (points > 0) this.checkAchievements();
+    this.autoSave();
   }
 
   markVisited(planetId) {
@@ -210,6 +225,161 @@ export class Game {
     this.ui.updateVisited(this.visited);
     this.checkAchievements();
     this.missions.onVisit(planetId);
+    this.autoSave();
+  }
+
+  autoSave() {
+    if (this.state === GameState.MENU || this.state === GameState.VICTORY) return;
+    if (this._autoSaveTimeout) clearTimeout(this._autoSaveTimeout);
+    this._autoSaveTimeout = setTimeout(() => {
+      this._autoSaveTimeout = null;
+      this.storage.setAutoSave({
+        score: this.score,
+        visited: [...this.visited],
+        crystalsCollected: this.crystalsCollected,
+        quizStreak: this.quizStreak,
+        wormholeUsed: this.wormholeUsed,
+        missions: this.missions.getState(),
+        playerName: this.playerName,
+        shipStyleId: this.shipStyleId,
+      });
+    }, 500);
+  }
+
+  _flushAutoSave() {
+    if (this.state === GameState.MENU || this.state === GameState.VICTORY) return;
+    if (this._autoSaveTimeout) {
+      clearTimeout(this._autoSaveTimeout);
+      this._autoSaveTimeout = null;
+    }
+    this.storage.setAutoSave({
+      score: this.score,
+      visited: [...this.visited],
+      crystalsCollected: this.crystalsCollected,
+      quizStreak: this.quizStreak,
+      wormholeUsed: this.wormholeUsed,
+      missions: this.missions.getState(),
+      playerName: this.playerName,
+      shipStyleId: this.shipStyleId,
+    });
+  }
+
+  _setupButtons() {
+    // Event delegation: handle all [data-action] button clicks
+    document.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-action]');
+      if (btn) this._handleAction(btn.dataset.action);
+    });
+  }
+
+  _handleAction(action) {
+    this.initAudio();
+    switch (action) {
+      case 'start':
+        if (this.state === GameState.MENU) this._startGame();
+        break;
+      case 'new-game':
+        if (this.state !== GameState.MENU) return;
+        this.storage.clearAutoSave();
+        this.ui.hideMenuResume();
+        this.playTone(600, 0.08);
+        break;
+      case 'resume':
+        this.togglePause();
+        break;
+      case 'journal':
+        this.toggleJournal();
+        break;
+      case 'missions':
+        this.toggleMissionBoard();
+        break;
+      case 'gallery':
+        this.toggleGallery();
+        break;
+      case 'save':
+        this.toggleSaveMenu();
+        break;
+      case 'load':
+      case 'load-menu':
+        this.toggleLoadMenu();
+        break;
+      case 'toggle-tts':
+        if (!this.paused) return;
+        const enabled = this.tts.toggle();
+        this.ui.updateTTSStatus(enabled);
+        this.playTone(enabled ? 800 : 400, 0.1);
+        break;
+      case 'save-confirm':
+        this.saveGameToSlot(this.ui._slotIndex + 1);
+        break;
+      case 'load-confirm': {
+        const slots = document.querySelectorAll('#load-slots .save-slot');
+        const sel = slots[this.ui._slotIndex];
+        if (sel && !sel.classList.contains('empty')) {
+          this.loadGameFromSlot(this.ui._slotIndex + 1);
+        }
+        break;
+      }
+      case 'close-save':
+        this.toggleSaveMenu();
+        break;
+      case 'close-load':
+        this.toggleLoadMenu();
+        break;
+      case 'close-journal':
+        this.toggleJournal();
+        break;
+      case 'close-missions':
+        this.toggleMissionBoard();
+        break;
+      case 'close-gallery':
+        this.toggleGallery();
+        break;
+      case 'close-lightbox':
+        this.ui.hideLightbox();
+        this.playTone(400, 0.06);
+        break;
+      case 'snap-photo':
+        this.snapPhoto();
+        break;
+      case 'exit-photo':
+        this.exitPhotoMode();
+        break;
+      case 'continue':
+      case 'play-again':
+        // Simulate Enter for scenes that check input.enter in their update loop
+        this.input.justPressed['Enter'] = true;
+        this.input.keys['Enter'] = true;
+        setTimeout(() => { this.input.keys['Enter'] = false; }, 100);
+        break;
+    }
+  }
+
+  _startGame() {
+    const ss = this.scenes[GameState.SOLAR_SYSTEM];
+    const choices = this.ui.getMenuChoices();
+    this.playerName = choices.playerName;
+    this.shipStyleId = choices.shipStyleId;
+    this.storage.setPlayerName(this.playerName);
+    this.storage.setShipStyle(this.shipStyleId);
+
+    if (ss.ship && SHIP_STYLES[this.shipStyleId]) {
+      ss.ship.applyStyle(SHIP_STYLES[this.shipStyleId]);
+    }
+
+    const saved = this.storage.getAutoSave();
+    if (saved) {
+      this.score = saved.score || 0;
+      this.visited = new Set(saved.visited || []);
+      this.crystalsCollected = saved.crystalsCollected || 0;
+      this.quizStreak = saved.quizStreak || 0;
+      this.wormholeUsed = saved.wormholeUsed || false;
+      if (saved.missions) this.missions.loadState(saved.missions);
+    }
+
+    this.initAudio();
+    this.playMelody([[523, 0.15], [659, 0.15], [784, 0.2]]);
+    this.setState(GameState.SOLAR_SYSTEM);
   }
 
   checkAchievements() {
@@ -575,6 +745,11 @@ export class Game {
   }
 
   start() {
+    // Show resume info if auto-save exists with progress
+    const autoSave = this.storage.getAutoSave();
+    if (autoSave && autoSave.visited && autoSave.visited.length > 0) {
+      this.ui.showMenuResume(autoSave.score || 0, autoSave.visited.length);
+    }
     this.ui.showMenu();
     this.loop();
   }
@@ -811,23 +986,16 @@ export class Game {
         ss.camera.rotation.y += dt * 0.05;
         this.renderer.render(ss.scene, ss.camera);
       }
+      // New game (N key) — clears auto-save so Enter starts fresh
+      if (this.input.wasPressed('KeyN')) {
+        this.storage.clearAutoSave();
+        this.ui.hideMenuResume();
+        this.playTone(600, 0.08);
+      }
+
       // Start game on Enter (not Space — Space is for typing in name)
       if (this.input.wasPressed('Enter')) {
-        // Read menu choices (name + ship)
-        const choices = this.ui.getMenuChoices();
-        this.playerName = choices.playerName;
-        this.shipStyleId = choices.shipStyleId;
-        this.storage.setPlayerName(this.playerName);
-        this.storage.setShipStyle(this.shipStyleId);
-
-        // Apply ship style
-        if (ss.ship && SHIP_STYLES[this.shipStyleId]) {
-          ss.ship.applyStyle(SHIP_STYLES[this.shipStyleId]);
-        }
-
-        this.initAudio();
-        this.playMelody([[523, 0.15], [659, 0.15], [784, 0.2]]);
-        this.setState(GameState.SOLAR_SYSTEM);
+        this._startGame();
       }
     } else {
       const activeScene = this.scenes[this.state];

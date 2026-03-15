@@ -147,6 +147,27 @@ export class UIManager {
     this.menuScreen.classList.add('hidden');
   }
 
+  showMenuResume(score, visitedCount) {
+    const btn = document.getElementById('menu-start-btn');
+    if (btn) btn.textContent = 'Continue!';
+    const info = document.getElementById('menu-resume-info');
+    if (info) {
+      info.textContent = `Score: ${score} | Visited: ${visitedCount}/${REQUIRED_DESTINATIONS.length}`;
+      info.classList.remove('hidden');
+    }
+    const newBtn = document.getElementById('menu-new-game');
+    if (newBtn) newBtn.classList.remove('hidden');
+  }
+
+  hideMenuResume() {
+    const btn = document.getElementById('menu-start-btn');
+    if (btn) btn.textContent = 'Blast Off!';
+    const info = document.getElementById('menu-resume-info');
+    if (info) info.classList.add('hidden');
+    const newBtn = document.getElementById('menu-new-game');
+    if (newBtn) newBtn.classList.add('hidden');
+  }
+
   onStateChange(state, game) {
     // Hide everything first
     this.menuScreen.classList.add('hidden');
@@ -411,19 +432,29 @@ export class UIManager {
     this.highScoreEntry.classList.remove('hidden');
     const input = document.getElementById('hs-name-input');
     input.value = defaultName;
+
+    const submit = () => {
+      const name = input.value.trim() || 'ACE';
+      cleanup();
+      this.highScoreEntry.classList.add('hidden');
+      onComplete(name);
+    };
+
+    const onKey = (e) => { if (e.key === 'Enter') submit(); };
+    const confirmBtn = document.querySelector('[data-action="hs-confirm"]');
+
+    const cleanup = () => {
+      input.removeEventListener('keydown', onKey);
+      if (confirmBtn) confirmBtn.onclick = null;
+      this._hsHandler = null;
+    };
+
     // Brief delay so the Enter press that triggered this doesn't immediately submit
     setTimeout(() => {
       input.focus();
-      this._hsHandler = (e) => {
-        if (e.key === 'Enter') {
-          const name = input.value.trim() || 'ACE';
-          input.removeEventListener('keydown', this._hsHandler);
-          this._hsHandler = null;
-          this.highScoreEntry.classList.add('hidden');
-          onComplete(name);
-        }
-      };
-      input.addEventListener('keydown', this._hsHandler);
+      this._hsHandler = onKey;
+      input.addEventListener('keydown', onKey);
+      if (confirmBtn) confirmBtn.onclick = submit;
     }, 200);
   }
 
@@ -512,6 +543,13 @@ export class UIManager {
         slot.textContent = `Slot ${i} — Empty`;
       }
       if (i === 1) slot.classList.add('selected');
+      // Touch support: tap to select slot
+      const idx = i - 1;
+      slot.addEventListener('click', () => {
+        this._slotIndex = idx;
+        container.querySelectorAll('.save-slot').forEach((s, j) =>
+          s.classList.toggle('selected', j === idx));
+      });
       container.appendChild(slot);
     }
   }
@@ -559,7 +597,14 @@ export class UIManager {
     this._confirmSelected = 1; // default to No
     document.getElementById('confirm-message').textContent = message;
     const btns = this.confirmScreen.querySelectorAll('.confirm-btn');
-    btns.forEach((b, i) => b.classList.toggle('selected', i === this._confirmSelected));
+    btns.forEach((b, i) => {
+      b.classList.toggle('selected', i === this._confirmSelected);
+      // Touch support: tap to confirm
+      b.onclick = () => {
+        if (i === 0 && this._confirmYes) this._confirmYes();
+        else if (this._confirmNo) this._confirmNo();
+      };
+    });
     this.confirmScreen.classList.remove('hidden');
   }
 
@@ -711,6 +756,13 @@ export class UIManager {
           ? `Postcard: ${item.planet || 'Space'}`
           : (item.planet || 'Space Photo');
         card.appendChild(label);
+        // Tap to select + view
+        card.addEventListener('click', () => {
+          this._galleryIndex = i;
+          this.galleryGrid.querySelectorAll('.gallery-card').forEach((c, j) =>
+            c.classList.toggle('selected', j === i));
+          this.showLightbox(item);
+        });
         this.galleryGrid.appendChild(card);
       });
     }

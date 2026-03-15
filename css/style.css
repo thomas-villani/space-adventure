@@ -11,12 +11,14 @@ body {
   background: #000;
   font-family: 'Fredoka One', cursive;
   color: #fff;
+  overscroll-behavior: none;
 }
 
 #game-canvas {
   display: block;
   width: 100vw;
   height: 100vh;
+  touch-action: none;
 }
 
 .overlay {
@@ -90,6 +92,51 @@ kbd {
 #hud-destination { color: #AAFFAA; }
 #hud-speed { color: #FF8844; }
 
+/* ── Game Buttons ── */
+.game-btn {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  color: #FFF;
+  background: rgba(100, 100, 255, 0.3);
+  border: 2px solid #87CEEB;
+  border-radius: 12px;
+  padding: 10px 24px;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: transform 0.15s, background 0.15s;
+  margin: 4px;
+}
+
+.game-btn:hover, .game-btn:active {
+  background: rgba(100, 100, 255, 0.5);
+  transform: scale(1.05);
+}
+
+.game-btn.primary {
+  background: rgba(255, 215, 0, 0.3);
+  border-color: #FFD700;
+  color: #FFD700;
+  font-size: 1.3rem;
+  padding: 12px 32px;
+}
+
+.game-btn.primary:hover, .game-btn.primary:active {
+  background: rgba(255, 215, 0, 0.5);
+}
+
+.game-btn-sm {
+  font-size: 0.9rem;
+  padding: 6px 14px;
+}
+
+.btn-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 6px 0;
+}
+
 /* Proximity prompt */
 #proximity-prompt {
   bottom: 80px;
@@ -99,6 +146,8 @@ kbd {
   border: 2px solid #AAFFAA;
   border-radius: 15px;
   padding: 12px 25px;
+  pointer-events: auto;
+  cursor: pointer;
 }
 
 #proximity-prompt .prompt {
@@ -913,6 +962,9 @@ kbd {
   border-radius: 15px;
   padding: 10px 25px;
   z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .photo-hud-text {
@@ -1038,4 +1090,131 @@ kbd {
   border-radius: 8px;
   border: 1px solid rgba(255, 215, 0, 0.3);
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
+}
+
+/* ── Touch Controls ── */
+
+/* Invisible steer zone — covers left portion of screen */
+#touch-steer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 60%;
+  height: 100%;
+  z-index: 5;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+/* Joystick visual — appears at touch point */
+#touch-joystick {
+  position: fixed;
+  z-index: 6;
+  pointer-events: none;
+  display: none;
+}
+
+.joystick-base {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  background: rgba(60, 60, 140, 0.2);
+  position: relative;
+}
+
+.joystick-nub {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  border: 2px solid rgba(255, 255, 255, 0.5);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Action buttons — bottom right */
+#touch-actions {
+  position: fixed;
+  bottom: 40px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 100;
+  pointer-events: none;
+}
+
+.touch-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  background: rgba(60, 60, 140, 0.4);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+  font-family: inherit;
+}
+
+.touch-btn:active {
+  background: rgba(100, 100, 220, 0.7);
+  border-color: rgba(255, 215, 0, 0.8);
+}
+
+.touch-action-btn {
+  width: 76px;
+  height: 76px;
+  font-size: 2rem;
+  background: rgba(255, 200, 0, 0.3);
+  border-color: rgba(255, 215, 0, 0.5);
+  color: #FFD700;
+}
+
+.touch-action-btn:active {
+  background: rgba(255, 200, 0, 0.6);
+}
+
+.touch-small-btns {
+  display: flex;
+  gap: 8px;
+}
+
+.touch-small-btn {
+  width: 46px;
+  height: 46px;
+  font-size: 1.1rem;
+}
+
+/* Move bottom-right UI elements above action buttons on touch devices */
+.touch-device #fun-fact-toast { bottom: 200px; }
+.touch-device #proximity-prompt { bottom: 200px; }
+
+/* ── Mobile Responsive ── */
+@media (max-width: 600px) {
+  .title { font-size: 2.5rem; }
+  .subtitle { font-size: 1.2rem; }
+  .prompt { font-size: 1rem; }
+  kbd { font-size: 0.9rem; padding: 2px 6px; }
+  #hud { font-size: 1rem; top: 10px; left: 10px; right: 10px; }
+  #orbit-name { font-size: 2.5rem; }
+  #fact-body { font-size: 1rem; max-width: 95vw; }
+  #fact-title { font-size: 1.8rem; }
+  #quiz-question { font-size: 1.1rem; }
+  .quiz-option { font-size: 1rem; padding: 10px 15px; }
+  .touch-btn { width: 48px; height: 48px; font-size: 1.2rem; }
+  .touch-action-btn { width: 64px; height: 64px; font-size: 1.6rem; }
+  .touch-small-btn { width: 40px; height: 40px; font-size: 1rem; }
+  #touch-actions { bottom: 20px; right: 12px; }
 }

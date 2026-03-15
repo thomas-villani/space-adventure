@@ -40,20 +40,22 @@
         <p id="ship-style-name" class="ship-name"></p>
       </div>
     </div>
-    <p class="prompt blink">Press <kbd>Enter</kbd> to blast off!</p>
-    <p class="prompt menu-hint">Press <kbd>L</kbd> to Load Game</p>
+    <button class="game-btn primary blink" data-action="start" id="menu-start-btn">Blast Off!</button>
+    <p class="menu-hint hidden" id="menu-resume-info"></p>
+    <button class="game-btn hidden" data-action="new-game" id="menu-new-game">New Game</button>
+    <button class="game-btn" data-action="load-menu">Load Game</button>
   </div>
 
   <!-- Proximity prompt -->
-  <div id="proximity-prompt" class="overlay hidden">
-    <p class="prompt">Press <kbd>Enter</kbd> to visit <span id="proximity-name"></span>!</p>
+  <div id="proximity-prompt" class="overlay hidden" data-action="continue">
+    <p class="prompt">Visit <span id="proximity-name"></span>!</p>
   </div>
 
   <!-- Fact panel -->
   <div id="fact-panel" class="overlay screen hidden">
     <h2 id="fact-title"></h2>
     <div id="fact-body"></div>
-    <p class="prompt">Press <kbd>Enter</kbd> to continue</p>
+    <button class="game-btn" data-action="continue">Continue</button>
   </div>
 
   <!-- Quiz panel -->
@@ -73,13 +75,13 @@
     <div id="high-score-entry" class="hidden">
       <p class="hs-label">New High Score! Enter your name:</p>
       <input type="text" id="hs-name-input" maxlength="15" placeholder="Your name" autocomplete="off" />
-      <p class="prompt">Press <kbd>Enter</kbd> to confirm</p>
+      <button class="game-btn" data-action="hs-confirm">Submit</button>
     </div>
     <div id="high-score-table" class="hidden">
       <h3>High Scores</h3>
       <ol id="hs-list"></ol>
     </div>
-    <p id="victory-prompt" class="prompt blink hidden">Press any key to play again</p>
+    <button class="game-btn primary hidden" data-action="play-again" id="victory-prompt">Play Again!</button>
   </div>
 
   <!-- Asteroid HUD -->
@@ -102,13 +104,17 @@
   <div id="pause-screen" class="overlay screen hidden">
     <h1 class="title">Paused</h1>
     <p class="subtitle">Take a break, space explorer!</p>
-    <p class="prompt blink">Press <kbd>Esc</kbd> to resume</p>
-    <p class="prompt pause-hint">Press <kbd>J</kbd> for Space Journal</p>
-    <p class="prompt pause-hint">Press <kbd>M</kbd> for Missions</p>
-    <p class="prompt pause-hint">Press <kbd>G</kbd> for Photo Gallery</p>
-    <p class="prompt pause-hint" id="pause-save-hint">Press <kbd>S</kbd> to Save Game</p>
-    <p class="prompt pause-hint">Press <kbd>L</kbd> to Load Game</p>
-    <p class="prompt pause-hint" id="pause-tts-hint">Press <kbd>T</kbd> to toggle Read Aloud: <span id="tts-status">ON</span></p>
+    <button class="game-btn primary" data-action="resume">Resume</button>
+    <div class="btn-group">
+      <button class="game-btn" data-action="journal">Journal</button>
+      <button class="game-btn" data-action="missions">Missions</button>
+      <button class="game-btn" data-action="gallery">Gallery</button>
+    </div>
+    <div class="btn-group">
+      <button class="game-btn" data-action="save">Save Game</button>
+      <button class="game-btn" data-action="load">Load Game</button>
+    </div>
+    <button class="game-btn game-btn-sm" data-action="toggle-tts" id="tts-btn">Read Aloud: <span id="tts-status">ON</span></button>
   </div>
 
   <!-- Score popup -->
@@ -121,14 +127,14 @@
   <div id="journal-screen" class="overlay screen hidden">
     <h1 class="title">Space Journal</h1>
     <div id="journal-grid"></div>
-    <p class="prompt">Press <kbd>J</kbd> or <kbd>Esc</kbd> to close</p>
+    <button class="game-btn" data-action="close-journal">Close</button>
   </div>
 
   <!-- Mission board -->
   <div id="mission-screen" class="overlay screen hidden">
     <h1 class="title">Mission Board</h1>
     <div id="mission-list"></div>
-    <p class="prompt">Press <kbd>M</kbd> or <kbd>Esc</kbd> to close</p>
+    <button class="game-btn" data-action="close-missions">Close</button>
   </div>
 
   <!-- Mission HUD hint -->
@@ -151,20 +157,22 @@
 
   <!-- Photo mode HUD -->
   <div id="photo-hud" class="overlay hidden">
-    <div class="photo-hud-text">Photo Mode &mdash; Arrows: orbit &bull; <kbd>Enter</kbd> snap &bull; <kbd>P</kbd> exit</div>
+    <span class="photo-hud-text">Photo Mode</span>
+    <button class="game-btn game-btn-sm" data-action="snap-photo">Snap!</button>
+    <button class="game-btn game-btn-sm" data-action="exit-photo">Exit</button>
   </div>
 
   <!-- Photo gallery -->
   <div id="gallery-screen" class="overlay screen hidden">
     <h1 class="title">Photo Gallery</h1>
     <div id="gallery-grid"></div>
-    <p class="prompt">Arrows: browse | <kbd>Enter</kbd> View | <kbd>D</kbd> Download | <kbd>Del</kbd> Delete | <kbd>G</kbd>/<kbd>Esc</kbd> Close</p>
+    <button class="game-btn" data-action="close-gallery">Close</button>
   </div>
 
   <!-- Gallery lightbox -->
   <div id="gallery-lightbox" class="overlay hidden">
     <img src="" alt="Photo">
-    <p class="prompt">Press any key to close</p>
+    <button class="game-btn" data-action="close-lightbox">Close</button>
   </div>
 
   <!-- Postcard prompt -->
@@ -175,21 +183,27 @@
   <!-- Orbit mode UI -->
   <div id="orbit-name" class="overlay hidden"></div>
   <div id="orbit-skip-hint" class="overlay hidden">
-    <p class="prompt blink">Press <kbd>Enter</kbd> to continue</p>
+    <button class="game-btn" data-action="continue">Continue</button>
   </div>
 
   <!-- Save screen -->
   <div id="save-screen" class="overlay screen hidden">
     <h1 class="title">Save Game</h1>
     <div id="save-slots"></div>
-    <p class="prompt">Use <kbd>&#8593;</kbd><kbd>&#8595;</kbd> to select, <kbd>Enter</kbd> to save, <kbd>Esc</kbd> to cancel</p>
+    <div class="btn-group">
+      <button class="game-btn primary" data-action="save-confirm">Save</button>
+      <button class="game-btn" data-action="close-save">Cancel</button>
+    </div>
   </div>
 
   <!-- Load screen -->
   <div id="load-screen" class="overlay screen hidden">
     <h1 class="title">Load Game</h1>
     <div id="load-slots"></div>
-    <p class="prompt">Use <kbd>&#8593;</kbd><kbd>&#8595;</kbd> to select, <kbd>Enter</kbd> to load, <kbd>Esc</kbd> to cancel</p>
+    <div class="btn-group">
+      <button class="game-btn primary" data-action="load-confirm">Load</button>
+      <button class="game-btn" data-action="close-load">Cancel</button>
+    </div>
   </div>
 
   <!-- Confirm dialog -->
@@ -199,7 +213,23 @@
       <button class="confirm-btn">Yes</button>
       <button class="confirm-btn selected">No</button>
     </div>
-    <p class="prompt">Use <kbd>&#8592;</kbd><kbd>&#8594;</kbd> to select, <kbd>Enter</kbd> to confirm, <kbd>Esc</kbd> to cancel</p>
+  </div>
+
+  <!-- Touch controls (shown on touch devices) -->
+  <div id="touch-controls" class="hidden">
+    <div id="touch-steer"></div>
+    <div id="touch-joystick">
+      <div class="joystick-base">
+        <div class="joystick-nub"></div>
+      </div>
+    </div>
+    <div id="touch-actions">
+      <button class="touch-btn touch-action-btn" data-key="Enter">&#9733;</button>
+      <div class="touch-small-btns">
+        <button class="touch-btn touch-small-btn" data-key="Escape">&#9208;</button>
+        <button class="touch-btn touch-small-btn" data-key="KeyQ">&#9889;</button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="js/main.js"></script>

@@ -81,18 +81,16 @@ export class Ship {
     forward.applyQuaternion(this.group.quaternion);
     this.group.position.addScaledVector(forward, this.speed * dt);
 
-    // Steering — yaw
-    if (input.left) this.group.rotation.y += this.turnSpeed * dt;
-    if (input.right) this.group.rotation.y -= this.turnSpeed * dt;
+    // Steering — yaw (analog: proportional on touch, full on keyboard)
+    const sx = input.steerX;
+    const sy = input.steerY;
+    this.group.rotation.y -= sx * this.turnSpeed * dt;
 
     // Vertical movement
-    if (input.up) this.group.position.y += this.verticalSpeed * dt;
-    if (input.down) this.group.position.y -= this.verticalSpeed * dt;
+    this.group.position.y -= sy * this.verticalSpeed * dt;
 
     // Bank animation
-    let targetBank = 0;
-    if (input.left) targetBank = 0.4;
-    if (input.right) targetBank = -0.4;
+    const targetBank = -sx * 0.4;
     this.bankAngle += (targetBank - this.bankAngle) * 5 * dt;
     this.group.rotation.z = this.bankAngle;
 

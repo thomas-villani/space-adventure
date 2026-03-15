@@ -141,7 +141,7 @@ export class LandingScene {
               // After answering, wait for Enter to dismiss
               this.phase = Phase.WAIT_DISMISS;
             });
-          } else if (this.game.photos) {
+          } else if (this.game.photos && !document.body.classList.contains('touch-device')) {
             this.phase = Phase.POSTCARD_OFFER;
             this.game.ui.showPostcardPrompt();
           } else {
@@ -156,8 +156,8 @@ export class LandingScene {
 
       case Phase.WAIT_DISMISS:
         if (input.enter) {
-          // Offer postcard if photo system is available
-          if (this.game.photos) {
+          // Offer postcard if photo system is available (skip on touch devices)
+          if (this.game.photos && !document.body.classList.contains('touch-device')) {
             this.game.ui.hideQuiz();
             this.phase = Phase.POSTCARD_OFFER;
             this.game.ui.showPostcardPrompt();

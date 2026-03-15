@@ -136,4 +136,9 @@ export class StorageManager {
     postcards.splice(index, 1);
     this.setJSON('postcards', postcards);
   }
+
+  // ── Auto-save (crash recovery) ──
+  getAutoSave() { return this.getJSON('autosave'); }
+  setAutoSave(state) { this.setJSON('autosave', state); }
+  clearAutoSave() { try { localStorage.removeItem(PREFIX + 'autosave'); } catch {} }
 }
