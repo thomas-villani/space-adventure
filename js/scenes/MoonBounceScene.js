@@ -123,10 +123,10 @@ export class MoonBounceScene {
 
     const { input } = this.game;
 
-    // Horizontal movement
+    // Horizontal movement (analog on touch)
     const moveSpeed = 10;
-    if (input.left) this._posX -= moveSpeed * dt;
-    if (input.right) this._posX += moveSpeed * dt;
+    const sx = input.steerX;
+    this._posX += sx * moveSpeed * dt;
     this._posX = THREE.MathUtils.clamp(this._posX, -8, 8);
 
     // Vertical physics — low gravity bounce
@@ -143,9 +143,7 @@ export class MoonBounceScene {
     this._ship.position.set(this._posX, newY, 0);
 
     // Tilt ship based on movement
-    let tilt = 0;
-    if (input.left) tilt = 0.3;
-    if (input.right) tilt = -0.3;
+    const tilt = -sx * 0.3;
     this._ship.rotation.z += (tilt - this._ship.rotation.z) * 5 * dt;
 
     // Camera follows ship height loosely

@@ -2,6 +2,7 @@ import { GameState } from '../game.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS, DESTINATION_MAP } from '../data/solarSystem.js';
 import { ACHIEVEMENTS } from '../data/achievements.js';
 import { SHIP_STYLES } from '../data/shipStyles.js';
+import { RACE_COURSES } from '../data/raceCourses.js';
 
 export class UIManager {
   constructor() {
@@ -89,12 +90,25 @@ export class UIManager {
     this._galleryItems = [];
     this._galleryIndex = 0;
 
+    // Race HUD
+    this.raceHud = document.getElementById('race-hud');
+    this.raceTimer = document.getElementById('race-timer');
+    this.raceWaypointName = document.getElementById('race-waypoint-name');
+    this.raceWaypointCount = document.getElementById('race-waypoint-count');
+    this.raceCourseLabel = document.getElementById('race-course-label');
+    this.raceCountdown = document.getElementById('race-countdown');
+    this.raceCountdownText = document.getElementById('race-countdown-text');
+    this.raceFinish = document.getElementById('race-finish');
+
     // Ship picker
     this.pilotNameInput = document.getElementById('pilot-name');
     this.shipSwatches = document.getElementById('ship-swatches');
     this.shipStyleName = document.getElementById('ship-style-name');
     this._selectedShipStyle = 0;
+    this._selectedMode = 'explore';
+    this._selectedCourse = 0;
     this._initShipPicker();
+    this._initModePicker();
   }
 
   _initShipPicker() {
@@ -126,7 +140,12 @@ export class UIManager {
 
   getMenuChoices() {
     const name = this.pilotNameInput?.value.trim() || 'Space Explorer';
-    return { playerName: name, shipStyleId: this._selectedShipStyle };
+    return {
+      playerName: name,
+      shipStyleId: this._selectedShipStyle,
+      mode: this._selectedMode,
+      courseIndex: this._selectedCourse,
+    };
   }
 
   setMenuDefaults(playerName, shipStyleId) {
@@ -186,6 +205,9 @@ export class UIManager {
     if (this.galleryScreen) this.galleryScreen.classList.add('hidden');
     if (this._lightbox) this._lightbox.classList.add('hidden');
     if (this.postcardPrompt) this.postcardPrompt.classList.add('hidden');
+    if (this.raceHud) this.raceHud.classList.add('hidden');
+    if (this.raceCountdown) this.raceCountdown.classList.add('hidden');
+    if (this.raceFinish) this.raceFinish.classList.add('hidden');
     this.hideFunFact();
 
     switch (state) {
@@ -209,6 +231,10 @@ export class UIManager {
         break;
       case GameState.VICTORY:
         this.hud.classList.add('hidden');
+        break;
+      case GameState.SPACE_RACE:
+        this.hud.classList.add('hidden');
+        // Race HUD managed by SpaceRaceScene.enter()
         break;
       case GameState.MENU:
         this.showMenu();
@@ -819,5 +845,112 @@ export class UIManager {
 
   hidePostcardPrompt() {
     if (this.postcardPrompt) this.postcardPrompt.classList.add('hidden');
+  }
+
+  // ── Mode & Course Picker ──
+  _initModePicker() {
+    const buttons = document.querySelectorAll('.mode-btn');
+    const courses = document.getElementById('race-courses');
+    if (!buttons.length) return;
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        this._selectedMode = btn.dataset.mode;
+        if (courses) {
+          if (this._selectedMode === 'race') {
+            courses.classList.remove('hidden');
+          } else {
+            courses.classList.add('hidden');
+          }
+        }
+      });
+    });
+
+    // Build course cards
+    const list = document.getElementById('course-list');
+    if (!list) return;
+    list.innerHTML = '';
+    RACE_COURSES.forEach((course, i) => {
+      const card = document.createElement('div');
+      card.className = 'course-card' + (i === 0 ? ' selected' : '');
+      card.innerHTML = `<h4>${course.name}</h4><p>${course.description}</p>`;
+      card.addEventListener('click', () => {
+        list.querySelectorAll('.course-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        this._selectedCourse = i;
+      });
+      list.appendChild(card);
+    });
+  }
+
+  // ── Race HUD ──
+  showRaceHud(courseName, waypointCount) {
+    if (this.raceHud) this.raceHud.classList.remove('hidden');
+    if (this.raceCourseLabel) this.raceCourseLabel.textContent = courseName;
+  }
+
+  hideRaceHud() {
+    if (this.raceHud) this.raceHud.classList.add('hidden');
+  }
+
+  updateRaceTimer(seconds) {
+    if (!this.raceTimer) return;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    this.raceTimer.textContent = `${mins}:${secs.toFixed(1).padStart(4, '0')}`;
+  }
+
+  updateRaceWaypoint(name, current, total) {
+    if (this.raceWaypointName) this.raceWaypointName.textContent = name;
+    if (this.raceWaypointCount) this.raceWaypointCount.textContent = ` (${current}/${total})`;
+  }
+
+  // ── Race Countdown ──
+  showRaceCountdown(text) {
+    if (this.raceCountdown) this.raceCountdown.classList.remove('hidden');
+    if (this.raceCountdownText) {
+      this.raceCountdownText.textContent = text;
+      // Re-trigger animation
+      this.raceCountdownText.style.animation = 'none';
+      this.raceCountdownText.offsetHeight; // force reflow
+      this.raceCountdownText.style.animation = '';
+    }
+  }
+
+  hideRaceCountdown() {
+    if (this.raceCountdown) this.raceCountdown.classList.add('hidden');
+  }
+
+  // ── Race Finish ──
+  showRaceFinish(time, courseName, bestTime, isNewBest) {
+    const courseEl = document.getElementById('race-finish-course');
+    const timeEl = document.getElementById('race-finish-time');
+    const bestEl = document.getElementById('race-finish-best');
+
+    if (courseEl) courseEl.textContent = courseName;
+    if (timeEl) {
+      const mins = Math.floor(time / 60);
+      const secs = time % 60;
+      timeEl.textContent = `${mins}:${secs.toFixed(1).padStart(4, '0')}`;
+    }
+    if (bestEl) {
+      if (isNewBest) {
+        bestEl.textContent = 'New Best Time!';
+      } else if (bestTime != null) {
+        const bMins = Math.floor(bestTime / 60);
+        const bSecs = bestTime % 60;
+        bestEl.textContent = `Best: ${bMins}:${bSecs.toFixed(1).padStart(4, '0')}`;
+      } else {
+        bestEl.textContent = '';
+      }
+    }
+
+    if (this.raceFinish) this.raceFinish.classList.remove('hidden');
+  }
+
+  hideRaceFinish() {
+    if (this.raceFinish) this.raceFinish.classList.add('hidden');
   }
 }

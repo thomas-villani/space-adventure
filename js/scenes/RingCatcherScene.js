@@ -100,10 +100,10 @@ export class RingCatcherScene {
     // Move catcher with arrow keys
     const speed = 14;
     const { input } = this.game;
-    if (input.left) this._catcher.position.x -= speed * dt;
-    if (input.right) this._catcher.position.x += speed * dt;
-    if (input.up) this._catcher.position.y += speed * dt;
-    if (input.down) this._catcher.position.y -= speed * dt;
+    const sx = input.steerX;
+    const sy = input.steerY;
+    this._catcher.position.x += sx * speed * dt;
+    this._catcher.position.y -= sy * speed * dt;
     this._catcher.position.x = THREE.MathUtils.clamp(this._catcher.position.x, -8, 8);
     this._catcher.position.y = THREE.MathUtils.clamp(this._catcher.position.y, -5, 5);
 

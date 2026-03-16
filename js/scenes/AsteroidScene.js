@@ -174,19 +174,17 @@ export class AsteroidScene {
 
     // Ship movement (rail style — no forward movement, just dodge)
     const moveSpeed = 15;
-    if (input.left) this.ship.position.x -= moveSpeed * dt;
-    if (input.right) this.ship.position.x += moveSpeed * dt;
-    if (input.up) this.ship.position.y += moveSpeed * dt;
-    if (input.down) this.ship.position.y -= moveSpeed * dt;
+    const sx = input.steerX;
+    const sy = input.steerY;
+    this.ship.position.x += sx * moveSpeed * dt;
+    this.ship.position.y -= sy * moveSpeed * dt;
 
     // Clamp to lane
     this.ship.position.x = THREE.MathUtils.clamp(this.ship.position.x, -this.laneWidth / 2, this.laneWidth / 2);
     this.ship.position.y = THREE.MathUtils.clamp(this.ship.position.y, -this.laneHeight / 2, this.laneHeight / 2);
 
     // Bank animation
-    let bankTarget = 0;
-    if (input.left) bankTarget = 0.4;
-    if (input.right) bankTarget = -0.4;
+    const bankTarget = -sx * 0.4;
     this.ship.rotation.z += (bankTarget - this.ship.rotation.z) * 5 * dt;
 
     // Engine pulse

@@ -1092,6 +1092,136 @@ kbd {
   text-shadow: 0 0 6px rgba(0, 0, 0, 0.8);
 }
 
+/* ── Mode Toggle ── */
+.mode-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.mode-btn {
+  font-family: 'Fredoka One', cursive;
+  font-size: 1.1rem;
+  padding: 8px 20px;
+  border: 2px solid #445;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  color: #888;
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.15s;
+}
+
+.mode-btn:hover {
+  border-color: #667;
+  color: #BBB;
+}
+
+.mode-btn.selected {
+  border-color: #FFD700;
+  background: rgba(255, 215, 0, 0.15);
+  color: #FFD700;
+}
+
+/* ── Course Picker ── */
+#course-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 400px;
+  width: 100%;
+}
+
+.course-card {
+  padding: 10px 16px;
+  border: 2px solid #334;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  pointer-events: auto;
+  transition: all 0.15s;
+  text-align: left;
+}
+
+.course-card:hover {
+  border-color: #556;
+}
+
+.course-card.selected {
+  border-color: #00FFAA;
+  background: rgba(0, 255, 170, 0.1);
+}
+
+.course-card h4 {
+  font-size: 1rem;
+  color: #FFD700;
+  margin: 0 0 2px;
+}
+
+.course-card p {
+  font-size: 0.85rem;
+  color: #AAA;
+  margin: 0;
+}
+
+.course-card.selected p {
+  color: #CCC;
+}
+
+/* ── Race HUD ── */
+#race-hud {
+  top: 15px; left: 15px; right: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 1.3rem;
+  text-shadow: 0 0 8px rgba(0, 0, 0, 0.8);
+}
+
+#race-timer {
+  color: #00FFAA;
+  font-size: 2rem;
+  text-shadow: 0 0 10px rgba(0, 255, 170, 0.5);
+}
+
+#race-waypoint-info { color: #FFD700; }
+#race-waypoint-name { color: #FFF; }
+#race-waypoint-count { color: #87CEEB; font-size: 1rem; }
+#race-course-label { color: #888; font-size: 1rem; }
+
+/* ── Race Countdown ── */
+#race-countdown {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 20;
+}
+
+#race-countdown-text {
+  font-size: 8rem;
+  color: #FFD700;
+  text-shadow: 0 0 40px #FF6600, 0 0 80px #FF3300;
+  animation: countdownPulse 0.5s ease-out;
+}
+
+@keyframes countdownPulse {
+  0% { transform: scale(2); opacity: 0.5; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Race Finish ── */
+.race-time {
+  font-size: 3rem;
+  color: #00FFAA;
+  margin: 0.5rem 0;
+  text-shadow: 0 0 20px rgba(0, 255, 170, 0.4);
+}
+
+.race-best {
+  font-size: 1.3rem;
+  color: #FFD700;
+  margin-bottom: 1.5rem;
+}
+
 /* ── Touch Controls ── */
 
 /* Invisible steer zone — covers left portion of screen */
@@ -1184,6 +1314,18 @@ kbd {
 
 .touch-action-btn:active {
   background: rgba(255, 200, 0, 0.6);
+}
+
+.touch-fire-btn {
+  width: 56px;
+  height: 56px;
+  background: rgba(0, 255, 170, 0.25);
+  border-color: rgba(0, 255, 170, 0.5);
+  color: #00FFAA;
+}
+
+.touch-fire-btn:active {
+  background: rgba(0, 255, 170, 0.6);
 }
 
 .touch-small-btns {

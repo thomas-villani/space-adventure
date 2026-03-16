@@ -18,6 +18,11 @@ export class SolarSystemScene {
     this.nearestPlanet = null;
     this.proximityThreshold = 12;
     this._lastSpokenPlanet = null;
+    this.beltRocks = [];
+    this.kuiperRocks = [];
+    this.lasers = [];
+    this.fireTimer = 0;
+    this.fireCooldown = 0.25;
   }
 
   init() {
@@ -113,6 +118,7 @@ export class SolarSystemScene {
       );
       rock.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
       this.scene.add(rock);
+      this.beltRocks.push(rock);
     }
 
     // Kuiper Belt — sparse icy debris ring beyond Neptune
@@ -137,6 +143,7 @@ export class SolarSystemScene {
       );
       rock.rotation.set(Math.random() * 6, Math.random() * 6, Math.random() * 6);
       this.scene.add(rock);
+      this.kuiperRocks.push(rock);
     }
 
     // Boundary wall — visible force field at edge of solar system
@@ -244,6 +251,9 @@ export class SolarSystemScene {
 
   exit() {
     this.game.ui.hideProximity();
+    // Clean up active lasers
+    for (const l of this.lasers) this.scene.remove(l.mesh);
+    this.lasers = [];
   }
 
   update(dt) {
@@ -343,6 +353,14 @@ export class SolarSystemScene {
       this.boundary.material.opacity = 0.03;
     }
 
+    // Blaster — fire on Space
+    this.fireTimer -= dt;
+    if (input.isDown('Space') && this.fireTimer <= 0) {
+      this._fireLaser();
+      this.fireTimer = this.fireCooldown;
+    }
+    this._updateLasers(dt);
+
     // Proximity detection — skip visited planets
     let nearest = null;
     let nearestDist = this.proximityThreshold;
@@ -400,6 +418,79 @@ export class SolarSystemScene {
     } else {
       this.game.ui.setDestination('');
     }
+  }
+
+  _fireLaser() {
+    const geo = new THREE.CylinderGeometry(0.08, 0.08, 3, 6);
+    geo.rotateX(Math.PI / 2);
+    const mat = new THREE.MeshBasicMaterial({ color: 0x00FFAA, transparent: true, opacity: 0.9 });
+    const mesh = new THREE.Mesh(geo, mat);
+
+    const fwd = new THREE.Vector3(0, 0, -2);
+    fwd.applyQuaternion(this.ship.group.quaternion);
+    mesh.position.copy(this.ship.group.position).add(fwd);
+
+    const dir = new THREE.Vector3(0, 0, -1);
+    dir.applyQuaternion(this.ship.group.quaternion);
+    mesh.quaternion.copy(this.ship.group.quaternion);
+
+    const light = new THREE.PointLight(0x00FFAA, 1, 8);
+    mesh.add(light);
+
+    this.scene.add(mesh);
+    this.lasers.push({ mesh, direction: dir, active: true });
+    this.game.playTone(1600, 0.06, 'square', 0.04);
+  }
+
+  _updateLasers(dt) {
+    const speed = 200;
+    for (const l of this.lasers) {
+      if (!l.active) continue;
+      l.mesh.position.addScaledVector(l.direction, speed * dt);
+
+      // Check belt rocks
+      for (const rock of this.beltRocks) {
+        if (!rock.visible) continue;
+        if (l.mesh.position.distanceTo(rock.position) < 2.5) {
+          rock.visible = false;
+          l.active = false;
+          l.mesh.visible = false;
+          this.game.addScore(2);
+          this.game.ui.showScorePopup(2, 'Asteroid blasted!');
+          this.game.particles.sparkle(rock.position.clone(), 0xFFAA44);
+          this.game.playTone(1200, 0.08, 'square', 0.06);
+          break;
+        }
+      }
+      if (!l.active) continue;
+
+      // Check kuiper rocks
+      for (const rock of this.kuiperRocks) {
+        if (!rock.visible) continue;
+        if (l.mesh.position.distanceTo(rock.position) < 2.5) {
+          rock.visible = false;
+          l.active = false;
+          l.mesh.visible = false;
+          this.game.addScore(2);
+          this.game.ui.showScorePopup(2, 'Ice chunk blasted!');
+          this.game.particles.sparkle(rock.position.clone(), 0x88CCFF);
+          this.game.playTone(1200, 0.08, 'square', 0.06);
+          break;
+        }
+      }
+
+      // Remove if too far from ship
+      if (l.active && l.mesh.position.distanceTo(this.ship.position) > 150) {
+        l.active = false;
+        l.mesh.visible = false;
+      }
+    }
+
+    // Clean up inactive
+    this.lasers = this.lasers.filter(l => {
+      if (!l.active) { this.scene.remove(l.mesh); return false; }
+      return true;
+    });
   }
 
   _teleportTo(exitWormhole) {

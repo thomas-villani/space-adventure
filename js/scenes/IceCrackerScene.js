@@ -220,21 +220,21 @@ export class IceCrackerScene {
 
     const { input } = this.game;
 
-    // Move cursor with arrow keys (with repeat delay)
+    // Move cursor (supports both wasPressed for keyboard and held for joystick)
     this._moveTimer -= dt;
     if (this._moveTimer <= 0) {
       let moved = false;
-      if (input.wasPressed('ArrowLeft') || input.wasPressed('KeyA')) {
+      if (input.left) {
         this.cursorCol = Math.max(0, this.cursorCol - 1); moved = true;
-      } else if (input.wasPressed('ArrowRight') || input.wasPressed('KeyD')) {
+      } else if (input.right) {
         this.cursorCol = Math.min(this.cols - 1, this.cursorCol + 1); moved = true;
-      } else if (input.wasPressed('ArrowUp') || input.wasPressed('KeyW')) {
+      } else if (input.up) {
         this.cursorRow = Math.min(this.rows - 1, this.cursorRow + 1); moved = true;
-      } else if (input.wasPressed('ArrowDown') || input.wasPressed('KeyS')) {
+      } else if (input.down) {
         this.cursorRow = Math.max(0, this.cursorRow - 1); moved = true;
       }
       if (moved) {
-        this._moveTimer = 0.15;
+        this._moveTimer = 0.25;
         this._updateCursorPosition();
         this.game.playTone(600, 0.04, 'sine', 0.03);
       }

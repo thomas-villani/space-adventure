@@ -157,17 +157,15 @@ export class StormSurferScene {
     // Move ship with arrow keys
     const speed = 14;
     const { input } = this.game;
-    if (input.left) this._ship.position.x -= speed * dt;
-    if (input.right) this._ship.position.x += speed * dt;
-    if (input.up) this._ship.position.y += speed * dt;
-    if (input.down) this._ship.position.y -= speed * dt;
+    const sx = input.steerX;
+    const sy = input.steerY;
+    this._ship.position.x += sx * speed * dt;
+    this._ship.position.y -= sy * speed * dt;
     this._ship.position.x = THREE.MathUtils.clamp(this._ship.position.x, -8, 8);
     this._ship.position.y = THREE.MathUtils.clamp(this._ship.position.y, -5, 5);
 
     // Bank ship
-    let bank = 0;
-    if (input.left) bank = 0.3;
-    if (input.right) bank = -0.3;
+    const bank = -sx * 0.3;
     this._ship.rotation.z += (bank - this._ship.rotation.z) * 5 * dt;
 
     // Spawn obstacles

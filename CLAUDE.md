@@ -22,7 +22,8 @@ js/
   main.js               # Bootstrap (creates Game instance)
   game.js               # Game class: renderer, state machine, game loop, audio, pause
   scenes/
-    SolarSystemScene.js  # 3rd-person flight, starfield, sun, planets, boundary
+    SolarSystemScene.js  # 3rd-person flight, starfield, sun, planets, boundary, blaster
+    SpaceRaceScene.js    # Timed waypoint race mode (reuses SolarSystemScene's 3D world)
     AsteroidScene.js     # Rail-style dodge minigame with blaster
     LandingScene.js      # Planet facts display + quiz
     VictoryScene.js      # Fireworks celebration screen
@@ -36,16 +37,19 @@ js/
     ParticleEngine.js    # Engine trails, sparkles (Points-based)
   data/
     solarSystem.js       # All 21 destinations with facts, quizzes, positions
+    raceCourses.js       # Race mode course definitions (waypoint lists)
 ```
 
 ### Game States
 `MENU → SOLAR_SYSTEM ↔ ASTEROID ↔ LANDING → VICTORY`
+`MENU → SPACE_RACE → MENU` (race mode — timed waypoint racing, no facts/quizzes)
 
 State machine lives in `game.js`. The `setState()` method calls `exit()` on the old scene, updates UI via `onStateChange()`, then calls `enter()` on the new scene. UI must update before `enter()` so scenes can show panels on top.
 
 ### Controls
 - **Arrow keys / WASD**: Fly ship (solar system) or dodge (asteroid minigame)
-- **Enter / Space**: Interact (visit planet, advance facts) or fire blaster (asteroid minigame)
+- **Enter**: Interact (visit planet, advance facts)
+- **Space**: Fire blaster (solar system, race mode, and asteroid minigame)
 - **Q**: Cycle speed (Slow / Normal / Fast)
 - **Esc**: Pause / resume
 
@@ -60,6 +64,9 @@ State machine lives in `game.js`. The `setState()` method calls `exit()` on the 
 - **Unvisited planets**: Show a spinning blue diamond beacon above them
 - **Random quizzes**: Each destination has 3 quizzes; one is randomly picked per visit
 - **Stars on distant shell**: Starfield uses `sizeAttenuation: false` at distance 1500-3000 so stars are always visible as fixed-size points
+- **Space Race mode**: Timed waypoint racing — no facts/quizzes, no proximity slowdown, 3-2-1 countdown, best times saved per course in localStorage
+- **Solar system blaster**: Space key fires a laser that can destroy asteroid belt and Kuiper Belt rocks for +2 points (works in both Explore and Race modes)
+- **SpaceRaceScene shares SolarSystemScene**: Reuses the same Three.js scene, camera, ship, and planet objects via getters — no duplication of the 3D world
 
 ### Scoring
 - **+5** for exploring a destination
@@ -68,6 +75,8 @@ State machine lives in `game.js`. The `setState()` method calls `exit()` on the 
 - **+2** for shooting an asteroid with the blaster
 - **+1** for dodging an asteroid
 - **-1** for getting hit by an asteroid (clamped at 0)
+- **+2** for blasting a belt/kuiper rock in solar system flight
+- **+5** for reaching a race waypoint (race mode)
 
 ## Code Conventions
 - ES modules throughout, no CommonJS

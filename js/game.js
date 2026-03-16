@@ -15,11 +15,13 @@ import { StormSurferScene } from './scenes/StormSurferScene.js';
 import { GeyserRideScene } from './scenes/GeyserRideScene.js';
 import { SatelliteLaunchScene } from './scenes/SatelliteLaunchScene.js';
 import { IceCrackerScene } from './scenes/IceCrackerScene.js';
+import { SpaceRaceScene } from './scenes/SpaceRaceScene.js';
 import { TTSManager } from './systems/TTSManager.js';
 import { MissionManager } from './systems/MissionManager.js';
 import { PhotoManager } from './systems/PhotoManager.js';
 import { ACHIEVEMENTS, ACHIEVEMENT_MAP } from './data/achievements.js';
 import { DESTINATIONS, REQUIRED_DESTINATIONS } from './data/solarSystem.js';
+import { RACE_COURSES } from './data/raceCourses.js';
 import { FUN_FACTS } from './data/funFacts.js';
 import { SHIP_STYLES } from './data/shipStyles.js';
 
@@ -31,6 +33,7 @@ export const GameState = {
   LANDING: 'LANDING',
   MINI_GAME: 'MINI_GAME',
   VICTORY: 'VICTORY',
+  SPACE_RACE: 'SPACE_RACE',
 };
 
 export class Game {
@@ -96,6 +99,7 @@ export class Game {
       [GameState.ORBIT]: new OrbitScene(this),
       [GameState.LANDING]: new LandingScene(this),
       [GameState.VICTORY]: new VictoryScene(this),
+      [GameState.SPACE_RACE]: new SpaceRaceScene(this),
     };
 
     // Mini-game scenes (dynamically mapped to MINI_GAME state)
@@ -229,7 +233,7 @@ export class Game {
   }
 
   autoSave() {
-    if (this.state === GameState.MENU || this.state === GameState.VICTORY) return;
+    if (this.state === GameState.MENU || this.state === GameState.VICTORY || this.state === GameState.SPACE_RACE) return;
     if (this._autoSaveTimeout) clearTimeout(this._autoSaveTimeout);
     this._autoSaveTimeout = setTimeout(() => {
       this._autoSaveTimeout = null;
@@ -247,7 +251,7 @@ export class Game {
   }
 
   _flushAutoSave() {
-    if (this.state === GameState.MENU || this.state === GameState.VICTORY) return;
+    if (this.state === GameState.MENU || this.state === GameState.VICTORY || this.state === GameState.SPACE_RACE) return;
     if (this._autoSaveTimeout) {
       clearTimeout(this._autoSaveTimeout);
       this._autoSaveTimeout = null;
@@ -345,6 +349,25 @@ export class Game {
       case 'exit-photo':
         this.exitPhotoMode();
         break;
+      case 'race-again': {
+        // Restart the same race course
+        const raceScene = this.scenes[GameState.SPACE_RACE];
+        if (raceScene && raceScene.course) {
+          this.score = 0;
+          this.visited = new Set();
+          let waypoints = raceScene.course.waypoints;
+          if (raceScene.course.random) {
+            const pool = REQUIRED_DESTINATIONS.map(d => d.id);
+            const shuffled = [...pool].sort(() => Math.random() - 0.5);
+            waypoints = shuffled.slice(0, raceScene.course.random);
+          }
+          this.setState(GameState.SPACE_RACE, { course: { ...raceScene.course, waypoints } });
+        }
+        break;
+      }
+      case 'race-menu':
+        this.setState(GameState.MENU);
+        break;
       case 'continue':
       case 'play-again':
         // Simulate Enter for scenes that check input.enter in their update loop
@@ -367,19 +390,34 @@ export class Game {
       ss.ship.applyStyle(SHIP_STYLES[this.shipStyleId]);
     }
 
-    const saved = this.storage.getAutoSave();
-    if (saved) {
-      this.score = saved.score || 0;
-      this.visited = new Set(saved.visited || []);
-      this.crystalsCollected = saved.crystalsCollected || 0;
-      this.quizStreak = saved.quizStreak || 0;
-      this.wormholeUsed = saved.wormholeUsed || false;
-      if (saved.missions) this.missions.loadState(saved.missions);
-    }
-
     this.initAudio();
     this.playMelody([[523, 0.15], [659, 0.15], [784, 0.2]]);
-    this.setState(GameState.SOLAR_SYSTEM);
+
+    if (choices.mode === 'race') {
+      // Race mode — fresh state, no auto-save
+      this.score = 0;
+      this.visited = new Set();
+      const courseData = RACE_COURSES[choices.courseIndex || 0];
+      let waypoints = courseData.waypoints ? [...courseData.waypoints] : [];
+      if (courseData.random) {
+        const pool = REQUIRED_DESTINATIONS.map(d => d.id);
+        const shuffled = [...pool].sort(() => Math.random() - 0.5);
+        waypoints = shuffled.slice(0, courseData.random);
+      }
+      this.setState(GameState.SPACE_RACE, { course: { ...courseData, waypoints } });
+    } else {
+      // Explore mode — load auto-save if available
+      const saved = this.storage.getAutoSave();
+      if (saved) {
+        this.score = saved.score || 0;
+        this.visited = new Set(saved.visited || []);
+        this.crystalsCollected = saved.crystalsCollected || 0;
+        this.quizStreak = saved.quizStreak || 0;
+        this.wormholeUsed = saved.wormholeUsed || false;
+        if (saved.missions) this.missions.loadState(saved.missions);
+      }
+      this.setState(GameState.SOLAR_SYSTEM);
+    }
   }
 
   checkAchievements() {
@@ -468,6 +506,8 @@ export class Game {
   togglePause() {
     // Only allow pause during active gameplay
     if (this.state === GameState.MENU || this.state === GameState.VICTORY) return;
+    // Don't allow pause when race is finished (finish screen is showing)
+    if (this.state === GameState.SPACE_RACE && this.scenes[GameState.SPACE_RACE]?.finished) return;
     // Don't toggle pause if an overlay is open
     if (this.journalOpen || this.missionOpen || this.photoModeOpen || this.galleryOpen || this.saveMenuOpen || this.loadMenuOpen || this.confirmOpen) return;
 

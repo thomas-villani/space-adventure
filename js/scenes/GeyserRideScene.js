@@ -172,17 +172,15 @@ export class GeyserRideScene {
     // Auto-rise
     this.height += this.riseSpeed * dt;
 
-    // Ship horizontal control
+    // Ship horizontal control (analog on touch)
     const moveSpeed = 12;
     const { input } = this.game;
-    if (input.left) this._shipX -= moveSpeed * dt;
-    if (input.right) this._shipX += moveSpeed * dt;
+    const sx = input.steerX;
+    this._shipX += sx * moveSpeed * dt;
     this._shipX = THREE.MathUtils.clamp(this._shipX, -7, 7);
 
     // Tilt ship based on movement
-    let tilt = 0;
-    if (input.left) tilt = 0.3;
-    if (input.right) tilt = -0.3;
+    const tilt = -sx * 0.3;
     this._ship.rotation.z += (tilt - this._ship.rotation.z) * 5 * dt;
 
     this._ship.position.set(this._shipX, this.height, 0);

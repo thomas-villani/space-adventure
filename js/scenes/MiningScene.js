@@ -104,19 +104,17 @@ export class MiningScene {
 
     const { input } = this.game;
 
-    // Ship movement
+    // Ship movement (analog on touch, full on keyboard)
     const moveSpeed = 12;
-    if (input.left) this._ship.position.x -= moveSpeed * dt;
-    if (input.right) this._ship.position.x += moveSpeed * dt;
-    if (input.up) this._ship.position.y += moveSpeed * dt;
-    if (input.down) this._ship.position.y -= moveSpeed * dt;
+    const sx = input.steerX;
+    const sy = input.steerY;
+    this._ship.position.x += sx * moveSpeed * dt;
+    this._ship.position.y -= sy * moveSpeed * dt;
     this._ship.position.x = THREE.MathUtils.clamp(this._ship.position.x, -8, 8);
     this._ship.position.y = THREE.MathUtils.clamp(this._ship.position.y, -5, 5);
 
     // Bank animation
-    let bank = 0;
-    if (input.left) bank = 0.3;
-    if (input.right) bank = -0.3;
+    const bank = -sx * 0.3;
     this._ship.rotation.z += (bank - this._ship.rotation.z) * 5 * dt;
 
     // Fire laser

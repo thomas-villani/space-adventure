@@ -40,6 +40,17 @@
         <p id="ship-style-name" class="ship-name"></p>
       </div>
     </div>
+    <div class="setup-row">
+      <p class="setup-label">Game Mode</p>
+      <div class="mode-buttons">
+        <button class="mode-btn selected" data-mode="explore">Explore</button>
+        <button class="mode-btn" data-mode="race">Race</button>
+      </div>
+    </div>
+    <div id="race-courses" class="setup-row hidden">
+      <p class="setup-label">Choose a Course</p>
+      <div id="course-list"></div>
+    </div>
     <button class="game-btn primary blink" data-action="start" id="menu-start-btn">Blast Off!</button>
     <p class="menu-hint hidden" id="menu-resume-info"></p>
     <button class="game-btn hidden" data-action="new-game" id="menu-new-game">New Game</button>
@@ -90,6 +101,32 @@
       <div id="asteroid-progress-fill"></div>
     </div>
     <div id="asteroid-score">Score: 0</div>
+  </div>
+
+  <!-- Race HUD -->
+  <div id="race-hud" class="overlay hidden">
+    <div id="race-timer">0:00.0</div>
+    <div id="race-waypoint-info">
+      <span id="race-waypoint-label">Next: </span>
+      <span id="race-waypoint-name"></span>
+      <span id="race-waypoint-count"></span>
+    </div>
+    <div id="race-course-label"></div>
+  </div>
+
+  <!-- Race countdown -->
+  <div id="race-countdown" class="overlay hidden">
+    <div id="race-countdown-text">3</div>
+  </div>
+
+  <!-- Race finish -->
+  <div id="race-finish" class="overlay screen hidden">
+    <h1 class="title">Race Complete!</h1>
+    <p id="race-finish-course" class="subtitle"></p>
+    <p id="race-finish-time" class="race-time"></p>
+    <p id="race-finish-best" class="race-best"></p>
+    <button class="game-btn primary" data-action="race-again">Race Again</button>
+    <button class="game-btn" data-action="race-menu">Back to Menu</button>
   </div>
 
   <!-- Mini-game HUD -->
@@ -225,6 +262,7 @@
     </div>
     <div id="touch-actions">
       <button class="touch-btn touch-action-btn" data-key="Enter">&#9733;</button>
+      <button class="touch-btn touch-fire-btn" data-key="Space">&#9678;</button>
       <div class="touch-small-btns">
         <button class="touch-btn touch-small-btn" data-key="Escape">&#9208;</button>
         <button class="touch-btn touch-small-btn" data-key="KeyQ">&#9889;</button>
