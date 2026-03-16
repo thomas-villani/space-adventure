@@ -1124,10 +1124,10 @@ kbd {
 
 /* ── Course Picker ── */
 #course-list {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 8px;
-  max-width: 400px;
+  max-width: 550px;
   width: 100%;
 }
 
@@ -1359,4 +1359,5 @@ kbd {
   .touch-action-btn { width: 64px; height: 64px; font-size: 1.6rem; }
   .touch-small-btn { width: 40px; height: 40px; font-size: 1rem; }
   #touch-actions { bottom: 20px; right: 12px; }
+  #course-list { grid-template-columns: 1fr; }
 }

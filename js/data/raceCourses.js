@@ -25,6 +25,18 @@ export const RACE_COURSES = [
     waypoints: ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'],
   },
   {
+    id: 'dwarf-drag',
+    name: 'Dwarf Planet Drag Race',
+    description: 'Hit every dwarf planet and KBO!',
+    waypoints: ['ceres', 'pluto', 'makemake', 'haumea', 'eris', 'arrokoth'],
+  },
+  {
+    id: 'edge-run',
+    name: 'Edge of Space Run',
+    description: 'From the Sun to Voyager 1!',
+    waypoints: ['sun', 'mars', 'jupiter', 'neptune', 'pluto', 'eris', 'voyager'],
+  },
+  {
     id: 'random-5',
     name: 'Random 5',
     description: '5 random destinations every time!',

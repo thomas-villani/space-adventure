@@ -12,6 +12,9 @@ export class InputManager {
   }
 
   _onKeyDown(e) {
+    // Ignore game keys while typing in a text input
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     if (!this.keys[e.code]) {
       this.justPressed[e.code] = true;
     }
@@ -19,6 +22,8 @@ export class InputManager {
   }
 
   _onKeyUp(e) {
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'TEXTAREA') return;
     this.keys[e.code] = false;
   }
 
